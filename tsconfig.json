@@ -32,7 +32,7 @@
     "__test__/**/*",
     "typings/**/*",
     "config/**/*",
-    ".eslintrc.js",
+    // ".eslintrc.js",
     ".prettierrc.js",
     "jest.config.js",
     "mock/*"

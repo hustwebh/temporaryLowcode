@@ -19,7 +19,7 @@ export default ({ modalView, setModalView }: { modalView: boolean; setModalView:
   const [value, setValue] = useState([]);
   const { TreeNodeList } = useModel('modelsMsg', (res) => {
     const TreeNodeList = res.allModelsMsg.map((item: any, index: number) => {
-      let reduceStr = `${index}-${item.table_name}`;
+      const reduceStr = `${index}-${item.table_name}`;
       return {
         title: item.table_name,
         value: reduceStr,

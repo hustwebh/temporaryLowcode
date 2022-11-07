@@ -94,7 +94,7 @@ const WorkPlace: React.FC = () => {
         style={{ marginBlockStart: 8 }}
         wrap
       >
-        {projectList.map((item:any)=>{
+        {projectList.map((item: any)=>{
           return (
             <ProCard
             colSpan={8}

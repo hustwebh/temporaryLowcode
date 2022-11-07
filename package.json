@@ -11,12 +11,6 @@
     "gh-pages": "gh-pages -d dist",
     "i18n-remove": "pro i18n-remove --locale=zh-CN --write",
     "postinstall": "max setup",
-    "lint": "npm run lint:js && npm run lint:prettier && npm run tsc",
-    "lint-staged": "lint-staged",
-    "lint-staged:js": "eslint --ext .js,.jsx,.ts,.tsx ",
-    "lint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src ",
-    "lint:js": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src",
-    "lint:prettier": "prettier -c --write \"src/**/*\" --end-of-line auto",
     "openapi": "max openapi",
     "playwright": "playwright install && playwright test",
     "prepare": "husky install",
@@ -29,12 +23,6 @@
     "start:test": "cross-env REACT_APP_ENV=test MOCK=none UMI_ENV=dev max dev",
     "test:e2e": "node ./tests/run-tests.js",
     "tsc": "tsc --noEmit"
-  },
-  "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",
-    "**/*.{js,jsx,tsx,ts,less,md,json}": [
-      "prettier --write"
-    ]
   },
   "browserslist": [
     "> 1%",
@@ -96,10 +84,8 @@
     "cross-env": "^7.0.0",
     "cross-port-killer": "^1.3.0",
     "detect-installer": "^1.0.0",
-    "eslint": "^7.32.0",
     "gh-pages": "^3.2.0",
     "husky": "^7.0.4",
-    "lint-staged": "^10.0.0",
     "mockjs": "^1.1.0",
     "prettier": "^2.5.0",
     "swagger-ui-dist": "^4.12.0",

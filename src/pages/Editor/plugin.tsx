@@ -1,5 +1,6 @@
+import type {
+  ILowCodePluginContext} from '@alilc/lowcode-engine';
 import {
-  ILowCodePluginContext,
   plugins,
   project,
 } from '@alilc/lowcode-engine';

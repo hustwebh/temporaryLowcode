@@ -86,11 +86,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       request: async () => {
         const projectId = pathname.split('/')[1];
         const ListMsg = await getAllModels();
-        let routeData: {
+        const routeData: {
           path: string;
           name: string;
         }[] = ListMsg.map((item: any) => {
-          let ListData = {
+          const ListData = {
             path: `/${projectId}/models/${item.id}`,
             name: item.table_name,
           };

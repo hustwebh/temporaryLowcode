@@ -1,7 +1,7 @@
 import { Component } from 'react';
 // import { connect } from 'umi';
 import { Link } from '@umijs/max';
-import { Input, Button } from 'antd';
+import { Button, message } from 'antd';
 import { PlusCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { getAllPages } from '../../services/ant-design-pro/pagesManagement';
 import SortableTree, {
@@ -12,6 +12,7 @@ import SortableTree, {
   getFlatDataFromTree
 } from 'react-sortable-tree';
 import 'react-sortable-tree/style.css';
+import { ChangePages } from '@/services/ant-design-pro/pagesManagement'
 // import style from "./index.less"
 
 const { pathname } = location;
@@ -64,7 +65,7 @@ export default class PageManagement extends Component {
     console.log('result', result);
     this.setState({
       treeData: getTreeFromFlatData({
-        flatData: result.map((node:any) => ({ ...node, title: node.name })),
+        flatData: result.map((node: any) => ({ ...node, title: node.name })),
         // flatData: initialData.map((node) => ({ ...node, title: node.name })),
         getKey: (node: any) => node.id,
         getParentKey: (node: any) => node.parent_id,
@@ -78,12 +79,23 @@ export default class PageManagement extends Component {
     this.getAllPagesMsg();
   }
 
-  savePages=()=>{
-    //TODO 数据的处理
-    console.log('treeData',this.state.treeData);
-    let result = getFlatDataFromTree(this.state.treeData);
-    console.log('result',result);
+  savePages = async () => {
+    // //TODO 数据的处理
+    // console.log('treeData', this.state.treeData);
+    // const flatData = getFlatDataFromTree({
+    //   treeData: this.state.treeData,
+    //   getNodeKey: ({ node }) => node.id, // This ensures your "id" properties are exported in the path
+    //   ignoreCollapsed: false, // Makes sure you traverse every node in the tree, not just the visible ones
+    // }).map(({ node, path }) => ({
+    //   id: node.id,
+    //   name: node.name,
+    //   parent: path.length > 1 ? path[path.length - 2] : null,
+    // }));
+    // console.log("flatData", flatData);
+    // const res = await ChangePages(~~pathname.split('/')[1],flatData);
+    // if (res) message.success("保存页面结构成功")
   }
+
 
   render() {
     const getNodeKey = ({ treeIndex }: { treeIndex: number }) => treeIndex;
@@ -114,6 +126,7 @@ export default class PageManagement extends Component {
             buttons: [
               <Button
                 // className={style.operateBtn}
+                key='addChild'
                 type="text"
                 icon={<PlusCircleOutlined />}
                 onClick={() =>
@@ -129,9 +142,10 @@ export default class PageManagement extends Component {
                     }).treeData,
                   }))
                 }
-              ></Button>,
+               />,
               <Button
                 // className={style.operateBtn}
+                key='removeChild'
                 type="text"
                 icon={<DeleteOutlined />}
                 onClick={() =>
@@ -143,10 +157,11 @@ export default class PageManagement extends Component {
                     }),
                   }))
                 }
-              ></Button>,
+               />,
               <Button
                 // className={style.operateBtn}
                 type="text"
+                key='toEditor'
               >
                 <Link to={`/${~~pathname.split('/')[1]}/Editor`} target="_blank">
                   <EditOutlined />
@@ -155,10 +170,10 @@ export default class PageManagement extends Component {
             ],
           })}
         />
-        <Button 
-        style={{width:130,height:35}}
-        type='primary'
-        onClick={this.savePages}
+        <Button
+          style={{ width: 130, height: 35 }}
+          type='primary'
+          onClick={this.savePages}
         >保存页面结构</Button>
       </>
     ) : (
