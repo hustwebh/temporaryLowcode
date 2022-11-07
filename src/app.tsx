@@ -29,7 +29,7 @@ const IconMap = {
   crown: <CrownOutlined />,
   pages: <SnippetsOutlined />,
   models: <UnorderedListOutlined />,
-  // test: <PlusSquareOutlined />
+  addModel: <PlusSquareOutlined />
 };
 
 const loopMenuItem = (menus: any[]): any[] =>
@@ -107,7 +107,13 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             path: `/${projectId}/models`,
             name: '数据模型',
             icon: 'models',
-            routes: routeData
+            routes: [
+              {
+                path: `/${projectId}/createNewModel`,
+                name:'新建数据模型',
+                icon:'addModel'
+              },
+              ...routeData]
           },
           {
             name: '页面管理',
@@ -126,20 +132,20 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
-      // 如果没有登录，重定向到 login
+      // 如果没有登录，重定向到 chlogin
       console.log(initialState?.currentUser);
       if (!initialState?.currentUser && location.pathname !== loginPath) {
         // history.push(loginPath);
       }
     },
-    menuFooterRender: () => (
-      <Button key='new'
-        onClick={() => history.push(`/${pathname.split('/')[1]}/createNewModel`)}
-        type='link'>
-        <PlusSquareOutlined />
-        <span>新建数据模型</span>
-      </Button>
-    ),
+    // menuFooterRender: () => (
+    //   <Button key='new'
+    //     onClick={() => history.push(`/${pathname.split('/')[1]}/createNewModel`)}
+    //     type='link'>
+    //     <PlusSquareOutlined />
+    //     <span>新建数据模型</span>
+    //   </Button>
+    // ),
     links: isDev
       ? [
         <Link key="openapi" to="/umi/plugin/openapi" target="_blank">

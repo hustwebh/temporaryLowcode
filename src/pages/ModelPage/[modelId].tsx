@@ -183,7 +183,6 @@ export default function ModelTable() {
         validateTrigger="onBlur"
         submitter={{
           render: (props, doms) => {
-            console.log("submitProps",props);
             return [
               <Button type="primary" key="submit" onClick={showPromiseConfirm}>
                 提交

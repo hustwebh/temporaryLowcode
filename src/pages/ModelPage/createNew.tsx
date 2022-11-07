@@ -207,15 +207,15 @@ export default function ModelTable() {
             record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
           }}
           toolBarRender={() => [
-            <Popconfirm
-              title="确认删除该数据模型吗?"
-              onConfirm={handleConfirm}
-              onCancel={() => null}
-            >
-              <Button key="delete" type="dashed" danger>
-                删除该数据模型
-              </Button>
-            </Popconfirm>,
+            // <Popconfirm
+            //   title="确认删除该数据模型吗?"
+            //   onConfirm={handleConfirm}
+            //   onCancel={() => null}
+            // >
+            //   <Button key="delete" type="dashed" danger>
+            //     删除该数据模型
+            //   </Button>
+            // </Popconfirm>,
             <Button
               key="rows"
               onClick={() => {
