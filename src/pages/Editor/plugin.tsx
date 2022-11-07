@@ -38,11 +38,11 @@ export default async function registerPlugins() {
       name: 'editor-init',
       async init() {
         // 修改面包屑组件的分隔符属性setter
-        // const assets = await request('../../assets/assets.json');
+        const assets = await request('./assets.json');
         
         console.log("assets",assets);
         
-        const schema = await request('../../assets/schema.json');
+        const schema = await request('./schema.json');
         // 设置物料描述
         const { material, project } = ctx;
 
