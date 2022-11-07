@@ -4,7 +4,6 @@ import { Button, message, Popconfirm, Modal, Input } from 'antd';
 import CopyModal from './components/copyModal';
 import { QuestionCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { layoutActionRef } from '@/utils'
 import {
   delModelData,
   addModelData,
@@ -27,6 +26,10 @@ type DataSourceType = {
 const { confirm } = Modal;
 
 export default function ModelTable() {
+  const { refreshSymbol,setRefreshSymbol } = useModel('modelsMsg', res => ({
+    refreshSymbol: res.refreshSymbol,
+    setRefreshSymbol:res.setRefreshSymbol
+  }));
   const { pathname } = useLocation();
   const tableId = pathname.split('/').pop();
   const [modalView, setModalView] = useState(false);
@@ -147,8 +150,7 @@ export default function ModelTable() {
         console.log("res",res);
         if (res) {
           message.success('修改数据模型成功!');
-          console.log("刷新表单",layoutActionRef.current.reload);
-          layoutActionRef.current?.reload();
+          setRefreshSymbol(!refreshSymbol)
         }
       },
       onCancel() {},
@@ -157,12 +159,11 @@ export default function ModelTable() {
 
   const handleConfirm = async (e: React.MouseEvent<HTMLElement> | undefined) => {
     console.log('deleteModelId',tableData.id);
-    layoutActionRef.current?.reload();
     const delResult = await delModelData(tableData.id);
     if (delResult) {
       //删除成功
-      layoutActionRef.current?.reload();
       message.info("删除成功")
+      setRefreshSymbol(!refreshSymbol)
     }
   };
 
@@ -182,7 +183,7 @@ export default function ModelTable() {
         validateTrigger="onBlur"
         submitter={{
           render: (props, doms) => {
-            console.log(props);
+            console.log("submitProps",props);
             return [
               <Button type="primary" key="submit" onClick={showPromiseConfirm}>
                 提交

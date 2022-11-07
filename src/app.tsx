@@ -12,17 +12,17 @@ import { Button } from 'antd'
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
-import { history, Link } from '@umijs/max';
+import { history, Link, useModel } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import { getAllModels } from './services/ant-design-pro/layout';
-import { layoutActionRef } from '@/utils'
+import { useState, useEffect } from 'react';
 
-// const layoutActionRef = createRef<{ reload: () => void }>();
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 const { pathname } = location;
+
 
 const IconMap = {
   smile: <SmileOutlined />,
@@ -77,12 +77,13 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const { refreshSymbol } = useModel('modelsMsg', res => ({
+    refreshSymbol: res.refreshSymbol
+  }));
   return {
     rightContentRender: () => <RightContent />,
     menu: {
-      params: { initialState },
-      // ref:layoutActionRef,
-      actionRef: layoutActionRef,
+      params: { initialState, refreshSymbol },
       request: async () => {
         const projectId = pathname.split('/')[1];
         const ListMsg = await getAllModels();

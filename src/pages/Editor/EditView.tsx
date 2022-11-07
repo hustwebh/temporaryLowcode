@@ -19,9 +19,7 @@ const Workbench = common.skeletonCabin.Workbench;
 const EditView: React.FC = () => {
 
   useEffect(() => {
-    plugins.init(preference).then(() => {
-      console.log(123);
-      
+    plugins.init(preference).then(() => {  
       setHasPluginInited(true);
     }).catch(err => console.error(err));
   }, []);

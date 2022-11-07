@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function models() {
   const [allModelsMsg, setAllModelsMsg] = useState<any>([]);
+  const [refreshSymbol, setRefreshSymbol] = useState<boolean>(false);
 
   useEffect(() => {
     const getAllModelsMsg = async () => {
@@ -14,5 +15,5 @@ export default function models() {
     getAllModelsMsg();
   }, []);
 
-  return { allModelsMsg };
+  return { allModelsMsg, refreshSymbol, setRefreshSymbol };
 }
