@@ -23,13 +23,12 @@ export default ({ modalView, setModalView }: { modalView: boolean; setModalView:
       return {
         title: item.table_name,
         value: reduceStr,
-        children: [],
-        // item?.fields.map((item: any) => {
-        //   return {
-        //     title: item.name,
-        //     value: `${reduceStr}-${item.name}`
-        //   }
-        // })
+        children:item?.fields.map((item: any) => {
+          return {
+            title: item.name,
+            value: `${reduceStr}-${item.name}`
+          }
+        })
       };
     });
     return {
