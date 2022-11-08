@@ -2,11 +2,10 @@ import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-des
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
 import { Button, message, Popconfirm, Modal, Input } from 'antd';
 import CopyModal from './components/copyModal';
-import { QuestionCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   delModelData,
-  addModelData,
   changeModelData,
   getModelData,
 } from '@/services/ant-design-pro/tableData';
@@ -155,7 +154,6 @@ export default function ModelTable() {
   const FormRequest = async () => {
     if (tableId) {
       const result = await getModelData(~~tableId);
-      console.log("tableData", result);
       if (result) setTableData(result);
       return { table: result.fields };
     }
@@ -185,6 +183,9 @@ export default function ModelTable() {
         console.log("res", res);
         if (res) {
           message.success('修改数据模型成功!');
+          setTableData({
+            table_name:inputValue
+          })
           setRefreshSymbol(!refreshSymbol)
         }
       },

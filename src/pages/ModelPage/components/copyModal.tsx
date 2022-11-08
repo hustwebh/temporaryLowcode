@@ -1,10 +1,7 @@
-import { useModel } from '@umijs/max';
 import { ModalForm, ProForm } from '@ant-design/pro-components';
 import { Form } from 'antd';
 import { TreeSelect } from 'antd';
-import React, { useState, useEffect } from 'react';
-import { getAllModels } from '@/services/ant-design-pro/layout';
-import { checkBoxCanSelect } from '@/utils'
+import { useState, } from 'react';
 
 const { SHOW_PARENT } = TreeSelect;
 

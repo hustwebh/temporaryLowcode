@@ -108,12 +108,17 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             name: '数据模型',
             icon: 'models',
             routes: [
-              {
-                path: `/${projectId}/createNewModel`,
-                name:'新建数据模型',
-                icon:'addModel'
-              },
+              // {
+              //   path: `/${projectId}/createNewModel`,
+              //   name:'新建数据模型',
+              //   icon:'addModel'
+              // },
               ...routeData]
+          },
+          {
+            path: `/${projectId}/createNewModel`,
+            name:'新建数据模型',
+            icon:'addModel'
           },
           {
             name: '页面管理',

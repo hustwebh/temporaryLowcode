@@ -1,14 +1,12 @@
 import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Modal, Input } from 'antd';
+import { Button, message, Modal, Input } from 'antd';
 import CopyModal from './components/copyModal';
-import { QuestionCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import React, { useRef, useState, useEffect } from 'react';
 import {
-  delModelData,
+  // delModelData,
   addModelData,
-  changeModelData,
-  getModelData,
 } from '@/services/ant-design-pro/tableData';
 import { getAllModels } from '@/services/ant-design-pro/layout';
 import { checkBoxCanSelect } from '@/utils';
@@ -33,7 +31,6 @@ export default function ModelTable() {
     setRefreshSymbol: res.setRefreshSymbol
   }));
   const { pathname } = useLocation();
-  const tableId = pathname.split('/').pop();
   const [modalView, setModalView] = useState(false);
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
   const formRef = useRef<ProFormInstance<any>>();
@@ -150,12 +147,6 @@ export default function ModelTable() {
   }, [pathname])
 
   const FormRequest = async () => {
-    // if (tableId) {
-    //   const result = await getModelData(~~tableId);
-    //   console.log(result);
-    //   if (result) setTableData(result);
-    //   return { table: result.fields };
-    // }
     return { table: [] };
   };
 
@@ -189,14 +180,14 @@ export default function ModelTable() {
     });
   };
 
-  const handleConfirm = async (e: React.MouseEvent<HTMLElement> | undefined) => {
-    const delResult = await delModelData(tableData.id);
-    if (delResult) {
-      //删除成功
-      message.info("删除成功")
-      setRefreshSymbol(!refreshSymbol)
-    }
-  };
+  // const handleConfirm = async (e: React.MouseEvent<HTMLElement> | undefined) => {
+  //   const delResult = await delModelData(tableData.id);
+  //   if (delResult) {
+  //     //删除成功
+  //     message.info("删除成功")
+  //     setRefreshSymbol(!refreshSymbol)
+  //   }
+  // };
 
   const getDataFromOtherModel = (value: any[]) => {
     const selectDataNoflat = value.map((item: string) => {
