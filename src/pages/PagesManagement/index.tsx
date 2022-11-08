@@ -90,16 +90,13 @@ export default class pagesManagement extends Component {
     }));
     const page_list = flatData.map((item)=>{
       const correspondingObject = this.state.pages.filter((_)=>_.id===item.id)[0];
-      // console.log("correspondingObject",correspondingObject);
-      if(correspondingObject) {
+      console.log("correspondingObject",correspondingObject);
         return {
           ...item,
           file_path:correspondingObject?.file_path||"",
           note:correspondingObject?.note||""
         }
-      }
     })
-    console.log('page_list',page_list);
     const modifyMsg = {
       project_id:~~pathname.split('/')[1],
       page_list,
