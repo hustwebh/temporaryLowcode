@@ -94,14 +94,8 @@ export default class pagesManagement extends Component {
       if(correspondingObject) {
         return {
           ...item,
-          file_path:correspondingObject.file_path,
-          note:correspondingObject.note
-        }
-      }else {
-        return {
-          ...item,
-          file_path:null,
-          note:null
+          file_path:correspondingObject?.file_path||"",
+          note:correspondingObject?.note||""
         }
       }
     })
