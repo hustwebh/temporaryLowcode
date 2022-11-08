@@ -43,14 +43,7 @@ export default function ModelTable() {
   const editorFormRef = useRef<EditableFormInstance<DataSourceType>>();
   const actionRef = useRef<any>();
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     console.log(123);
-  //     actionRef?.current.addEditRecord({
-  //       id: (Math.random() * 1000000).toFixed(0)
-  //     })
-  //   }, 10000)
-  // })
+
   useEffect(() => {
     //获取所有列表数据以及所有表单信息项目的Array
     const getAllModelsMsg = async () => {

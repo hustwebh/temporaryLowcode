@@ -11,13 +11,13 @@ export async function getAllPages(data: { project_id?: number }) {
   });
 }
 
-/** 修改页面结构 PUT /api/v1/page/{id} */
-export async function ChangePages(project_id: number,body: any) {
-  return request(`/api/v1/page/${project_id}`, {
+/** 修改页面结构 POST /api/v1/page/modify/all */
+export async function ChangePages(body: any) {
+  return request(`/api/v1/page/modify/all`, {
     headers: {
       'Content-Type': 'application/json',
     },
-    method: 'PUT',
+    method: 'POST',
     data:body,
   });
 }

@@ -28,9 +28,9 @@ type DataSourceType = {
 const { confirm } = Modal;
 
 export default function ModelTable() {
-  const { refreshSymbol,setRefreshSymbol } = useModel('modelsMsg', res => ({
+  const { refreshSymbol, setRefreshSymbol } = useModel('modelsMsg', res => ({
     refreshSymbol: res.refreshSymbol,
-    setRefreshSymbol:res.setRefreshSymbol
+    setRefreshSymbol: res.setRefreshSymbol
   }));
   const { pathname } = useLocation();
   const tableId = pathname.split('/').pop();
@@ -179,13 +179,13 @@ export default function ModelTable() {
           fields: formRef.current?.getFieldsValue?.().table,
         };
         const res = await addModelData(SubmitValues);
-        console.log("res",res);
+        console.log("res", res);
         if (res) {
           message.success('上传数据模型成功!');
           setRefreshSymbol(!refreshSymbol)
         }
       },
-      onCancel() {},
+      onCancel() { },
     });
   };
 
@@ -224,12 +224,12 @@ export default function ModelTable() {
     })
     const selectData = selectDataNoflat.flat(Infinity)
     console.log("selectData", selectData);
-    // selectData.forEach((_)=>{
-    //   console.log(123);
-    //   actionRef?.current?.addEditRecord(_)
-    // })
-    actionRef?.current?.addEditRecord(selectData[0])
-    actionRef?.current?.addEditRecord(selectData[3])
+    selectData.forEach((_) => {
+      // console.log(123);
+      actionRef?.current?.addEditRecord(_)
+    })
+    // actionRef?.current?.addEditRecord(selectData[0])
+    // actionRef?.current?.addEditRecord(selectData[3])
     return true;
   }
 
@@ -241,7 +241,7 @@ export default function ModelTable() {
     <>
       <ProForm<any>
         style={{
-          paddingRight:50
+          paddingRight: 50
         }}
         formRef={formRef}
         params={{ pathname }}
