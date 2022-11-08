@@ -1,12 +1,11 @@
 import { getAllModels } from '@/services/ant-design-pro/layout';
-import { getModelData } from '@/services/ant-design-pro/tableData';
-// import { useRequest } from 'ahooks'
 import { useEffect, useState } from 'react';
 
 export default function models() {
   const [allModelsMsg, setAllModelsMsg] = useState<any>([]);
   const [refreshSymbol, setRefreshSymbol] = useState<boolean>(false);
 
+  //在开局试图获取
   useEffect(() => {
     const getAllModelsMsg = async () => {
       const res = await getAllModels();

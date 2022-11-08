@@ -10,6 +10,8 @@ import {
   changeModelData,
   getModelData,
 } from '@/services/ant-design-pro/tableData';
+import { getAllModels } from '@/services/ant-design-pro/layout';
+import { checkBoxCanSelect } from '@/utils'
 import { useModel } from 'umi';
 import { useLocation } from 'react-router';
 
@@ -26,17 +28,57 @@ type DataSourceType = {
 const { confirm } = Modal;
 
 export default function ModelTable() {
-  const { refreshSymbol,setRefreshSymbol } = useModel('modelsMsg', res => ({
+  const { refreshSymbol, setRefreshSymbol } = useModel('modelsMsg', res => ({
     refreshSymbol: res.refreshSymbol,
-    setRefreshSymbol:res.setRefreshSymbol
+    setRefreshSymbol: res.setRefreshSymbol
   }));
   const { pathname } = useLocation();
   const tableId = pathname.split('/').pop();
   const [modalView, setModalView] = useState(false);
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
+  const [allModels, setAllModels] = useState<any[]>([]);
+  const [treeNodeList, setTreeNodeList] = useState<any>([]);
   const formRef = useRef<ProFormInstance<any>>();
   const [tableData, setTableData] = useState<any>({});
   const editorFormRef = useRef<EditableFormInstance<DataSourceType>>();
+  const actionRef = useRef<any>();
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     console.log(123);
+  //     actionRef?.current.addEditRecord({
+  //       id: (Math.random() * 1000000).toFixed(0)
+  //     })
+  //   }, 10000)
+  // })
+  useEffect(() => {
+    //获取所有列表数据以及所有表单信息项目的Array
+    const getAllModelsMsg = async () => {
+      const res = await getAllModels();
+      console.log("allModelMsg", res);
+      const TreeNodeList = res.map((item: any) => {
+        const reduceStr = `${item.table_name}`;
+        const selectAble = checkBoxCanSelect(item);
+        return {
+          title: item.table_name,
+          value: reduceStr,
+          disableCheckbox: selectAble,
+          children: item?.fields.map((item: any) => {
+            return {
+              title: item.name,
+              value: `${reduceStr}-${item.name}`,
+              disableCheckbox: selectAble,
+            }
+          })
+        };
+      });
+      setTreeNodeList(TreeNodeList);
+      setAllModels(res);
+    };
+    getAllModelsMsg();
+  }, [pathname])
+
+
   const columns: ProColumns<DataSourceType>[] = [
     {
       title: '字段名',
@@ -120,7 +162,7 @@ export default function ModelTable() {
   const FormRequest = async () => {
     if (tableId) {
       const result = await getModelData(~~tableId);
-      console.log(result);
+      console.log("tableData", result);
       if (result) setTableData(result);
       return { table: result.fields };
     }
@@ -147,18 +189,18 @@ export default function ModelTable() {
           fields: formRef.current?.getFieldsValue?.().table,
         };
         const res = await changeModelData(SubmitValues);
-        console.log("res",res);
+        console.log("res", res);
         if (res) {
           message.success('修改数据模型成功!');
           setRefreshSymbol(!refreshSymbol)
         }
       },
-      onCancel() {},
+      onCancel() { },
     });
   };
 
-  const handleConfirm = async (e: React.MouseEvent<HTMLElement> | undefined) => {
-    console.log('deleteModelId',tableData.id);
+  const handleConfirm = async () => {
+    console.log('deleteModelId', tableData.id);
     const delResult = await delModelData(tableData.id);
     if (delResult) {
       //删除成功
@@ -166,6 +208,37 @@ export default function ModelTable() {
       setRefreshSymbol(!refreshSymbol)
     }
   };
+
+  const getDataFromOtherModel = (value: any[]) => {
+    const selectDataNoflat = value.map((item: string) => {
+      const selectOptions = item.split('-')
+      if (selectOptions.length === 1) {
+        //代表这个表所有的都选了
+        const selectedModel = allModels.filter((item: any) => item.table_name === selectOptions[0])[0];
+        console.log("selectedModel", selectedModel)
+        const selectedData = selectedModel.fields.map((item: any) => {
+          return {
+            ...item,
+            id: (Math.random() * 1000000).toFixed(0)
+          }
+        })
+        return selectedData;
+      }
+      else if (selectOptions.length > 1) {
+        //代表这个表被选中了一部分
+        const selectedModel = allModels.filter((item: any) => item.table_name === selectOptions[0])[0];
+        const selectedData = selectedModel.fields.filter((item: any) => item.name === selectOptions[1])[0];
+        return {
+          ...selectedData,
+          id: (Math.random() * 1000000).toFixed(0)
+        }
+      }
+    })
+    const selectData = selectDataNoflat.flat(Infinity)
+    console.log("selectData", selectData);
+    selectData.forEach((_)=>actionRef?.current?.addEditRecord(_))
+    return true;
+  }
 
   // {
   //   table: DataSourceType[];
@@ -175,7 +248,7 @@ export default function ModelTable() {
     <>
       <ProForm<any>
         style={{
-          paddingRight:50
+          paddingRight: 50
         }}
         formRef={formRef}
         params={{ pathname }}
@@ -199,6 +272,8 @@ export default function ModelTable() {
           scroll={{
             x: 960,
           }}
+          // controlled
+          actionRef={actionRef}
           editableFormRef={editorFormRef}
           headerTitle={tableData.table_name}
           name="table"
@@ -222,8 +297,16 @@ export default function ModelTable() {
                 setModalView(true);
               }}
             >
-              复用其他table的数据
+              导入字段
             </Button>,
+            // <Button
+            //   key="rows"
+            //   onClick={() => {
+            //     setModalView(true);
+            //   }}
+            // >
+            //   导出数据库
+            // </Button>,
           ]}
           columns={columns}
           editable={{
@@ -236,7 +319,12 @@ export default function ModelTable() {
           }}
         />
       </ProForm>
-      <CopyModal modalView={modalView} setModalView={setModalView} />
+      <CopyModal
+        modalView={modalView}
+        setModalView={setModalView}
+        treeNodeList={treeNodeList}
+        getDataFromOtherModel={getDataFromOtherModel}
+      />
     </>
   );
 }

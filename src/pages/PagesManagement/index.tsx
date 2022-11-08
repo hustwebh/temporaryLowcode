@@ -89,6 +89,7 @@ export default class PageManagement extends Component {
       name: node.name,
       parent: path.length > 1 ? path[path.length - 2] : null,
     }));
+    console.log(flatData);
     const res = await ChangePages(~~pathname.split('/')[1],flatData);
     if (res) message.success("保存页面结构成功")
   }
@@ -145,7 +146,10 @@ export default class PageManagement extends Component {
                 key='removeChild'
                 type="text"
                 icon={<DeleteOutlined />}
-                onClick={() =>
+                onClick={(e) =>{
+                  //判断是否有子节点
+                  console.log("e",e);
+                  console.log("state",this.state)
                   this.setState((state) => ({
                     treeData: removeNodeAtPath({
                       treeData: state.treeData,
@@ -153,6 +157,7 @@ export default class PageManagement extends Component {
                       getNodeKey,
                     }),
                   }))
+                }
                 }
                />,
               <Button

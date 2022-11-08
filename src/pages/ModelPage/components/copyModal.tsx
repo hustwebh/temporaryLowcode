@@ -2,7 +2,9 @@ import { useModel } from '@umijs/max';
 import { ModalForm, ProForm } from '@ant-design/pro-components';
 import { Form } from 'antd';
 import { TreeSelect } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAllModels } from '@/services/ant-design-pro/layout';
+import { checkBoxCanSelect } from '@/utils'
 
 const { SHOW_PARENT } = TreeSelect;
 
@@ -14,34 +16,18 @@ const waitTime = (time: number = 100) => {
   });
 };
 
-export default ({ modalView, setModalView }: { modalView: boolean; setModalView: any }) => {
+export default ({ modalView, setModalView, treeNodeList,getDataFromOtherModel }
+  : { modalView: boolean; setModalView: any; treeNodeList: any;getDataFromOtherModel:any }) => {
   const [form] = Form.useForm<{ name: string; company: string }>();
   const [value, setValue] = useState([]);
-  const { TreeNodeList } = useModel('modelsMsg', (res) => {
-    const TreeNodeList = res.allModelsMsg.map((item: any, index: number) => {
-      const reduceStr = `${index}-${item.table_name}`;
-      return {
-        title: item.table_name,
-        value: reduceStr,
-        children:item?.fields.map((item: any) => {
-          return {
-            title: item.name,
-            value: `${reduceStr}-${item.name}`
-          }
-        })
-      };
-    });
-    return {
-      TreeNodeList,
-    };
-  });
+
   const tProps = {
-    treeData: TreeNodeList,
+    treeData: treeNodeList,
     value,
     allowClear: true,
     notFoundContent: '暂无数据',
     onChange: (newValue: never[]) => {
-      console.log('onChange ', newValue);
+      // console.log('onChange ', newValue);
       setValue(newValue);
     },
     treeCheckable: true,
@@ -57,7 +43,7 @@ export default ({ modalView, setModalView }: { modalView: boolean; setModalView:
       name: string;
       company: string;
     }>
-      title="获取其他数据模型字段"
+      title="导入字段"
       // trigger={trigger.current}
       visible={modalView}
       form={form}
@@ -65,12 +51,11 @@ export default ({ modalView, setModalView }: { modalView: boolean; setModalView:
         destroyOnClose: true,
         onCancel: () => setModalView(false),
       }}
-      onFinish={async (fromValues) => {
-        console.log(fromValues);
-
+      onFinish={async () => {
+        // console.log("fromValues",fromValues);
         await waitTime(2000);
-        // console.log(values.name);
-        return true;
+        setModalView(false)
+        return getDataFromOtherModel(value);
       }}
     >
       <ProForm.Group>
