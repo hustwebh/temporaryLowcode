@@ -3,6 +3,8 @@ import { material, project } from '@alilc/lowcode-engine';
 import { message } from 'antd';
 import { filterPackages } from '@alilc/lowcode-plugin-inject'
 import { TransformStage } from '@alilc/lowcode-types';
+import { schema } from '@alilc/lowcode-code-generator/types/utils';
+import testSchema from './testSchema.json'
 
 const getLSName = (scenarioName: string, ns: string = 'projectSchema') => `${scenarioName}:${ns}`;
 
@@ -84,7 +86,7 @@ export const resetSchema = async (scenarioName: string = 'index') => {
         },
       })
     })
-  } catch(err) {
+  } catch (err) {
     return
   }
 
@@ -100,4 +102,30 @@ export const resetSchema = async (scenarioName: string = 'index') => {
   project.getCurrentDocument()?.importSchema({ componentName: 'Page', fileName: 'sample' });
   project.simulatorHost?.rerender();
   message.success('成功重置页面');
+}
+
+export const getSchemaByFilepath = async (filepath: string) => {
+  return request(`${filepath}`, {
+    method: "GET",
+    // responseType:'blob',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  })
+}
+export const UpdateSchema = async (schemaString: string) => {
+  const blob = new Blob([JSON.stringify(schemaString)], {
+    type: 'application/json;charset=UTF-8'
+  })
+  const schemaFile = new FormData();
+  schemaFile.append('file', blob, 'schema.json');
+  console.log("schemaFile",schemaFile);
+  return request(`/api/cms/file`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    body: { file: schemaFile }
+    // body: schemaFile
+  })
 }

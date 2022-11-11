@@ -19,12 +19,16 @@ import TitleSetter from '@alilc/lowcode-setter-title';
 import BehaviorSetter from '@/components/LowCodeEditor/setters/behavior-setter';
 import CustomSetter from '@/components/LowCodeEditor/setters/custom-setter';
 import Logo from '@/components/LowCodeEditor/plugins/logo';
+import PageManage from '@/components/LowCodeEditor/plugins/PageManage'
 
 import {
   saveSchema,
   resetSchema,
   getProjectSchemaFromLocalStorage,
 } from '@/services/lowcode';
+
+import assets from '@/assets/assets';
+import schema from '@/assets/schema';
 
 export default async function registerPlugins() {
   await plugins.register(Inject);
@@ -38,11 +42,8 @@ export default async function registerPlugins() {
       name: 'editor-init',
       async init() {
         // 修改面包屑组件的分隔符属性setter
-        const assets = await request('./assets.json');
-        
-        console.log("assets",assets);
-        
-        const schema = await request('./schema.json');
+        // const assets = await request('./assets.json');
+        // const schema = await request('./schema.json');
         // 设置物料描述
         const { material, project } = ctx;
 
@@ -93,6 +94,21 @@ export default async function registerPlugins() {
         project.onSimulatorRendererReady(() => {
           componentsPane?.enable?.();
         })
+
+        skeleton.add({
+          index: -1,
+          area: 'leftArea',
+          type: 'PanelDock',
+          name: 'pagesPane',
+          content: PageManage,
+          contentProps: {},
+          props: {
+            align: 'top',
+            icon: 'kaiwenjianjia',
+            description: '页面管理',
+          },
+        });
+
       },
     };
   }
