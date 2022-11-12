@@ -125,7 +125,6 @@ export const UpdateSchema = async (schemaString: string) => {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    body: { file: schemaFile }
-    // body: schemaFile
+    data: schemaFile
   })
 }
