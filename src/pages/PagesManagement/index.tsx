@@ -88,17 +88,17 @@ export default class pagesManagement extends Component {
       name: node.name,
       parent_id: path.length > 1 ? path[path.length - 2] : null,
     }));
-    const page_list = flatData.map((item)=>{
-      const correspondingObject = this.state.pages.filter((_)=>_.id===item.id)[0];
-      console.log("correspondingObject",correspondingObject);
-        return {
-          ...item,
-          file_path:correspondingObject?.file_path||"",
-          note:correspondingObject?.note||""
-        }
+    const page_list = flatData.map((item) => {
+      const correspondingObject = this.state.pages.filter((_) => _.id === item.id)[0];
+      console.log("correspondingObject", correspondingObject);
+      return {
+        ...item,
+        file_path: correspondingObject?.file_path || "",
+        note: correspondingObject?.note || ""
+      }
     })
     const modifyMsg = {
-      project_id:~~pathname.split('/')[1],
+      project_id: ~~pathname.split('/')[1],
       page_list,
     }
     const res = await ChangePages(modifyMsg);
@@ -117,14 +117,12 @@ export default class pagesManagement extends Component {
           <h1>{this.state.projectMsg.name}</h1>
           <h3>{this.state.projectMsg.description}</h3>
         </div>
-        <div>
-          <Button
-            style={{ width: 130, height: 35, marginRight: 20 }}
-            type='primary'
-            onClick={this.savePages}
-          >
-            保存页面结构
-          </Button>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'end',
+          // paddingRight: 90,
+          paddingBottom:10
+        }}>
           <Button
             style={{ width: 130, height: 35 }}
             type='primary'
@@ -135,80 +133,94 @@ export default class pagesManagement extends Component {
             </Link>
           </Button>
         </div>
-        <SortableTree
-          treeData={this.state.treeData}
-          onChange={(treeData) => this.setState({ treeData })}
-          generateNodeProps={({ node, path }) => ({
-            title: (
-              <input
-                style={{ fontSize: '1.1rem' }}
-                value={node.name}
-                onChange={(event) => {
-                  const name = event.target.value;
+          <SortableTree
+            treeData={this.state.treeData}
+            onChange={(treeData) => this.setState({ treeData })}
+            generateNodeProps={({ node, path }) => ({
+              title: (
+                <input
+                  style={{ fontSize: '1.1rem' }}
+                  value={node.name}
+                  onChange={(event) => {
+                    const name = event.target.value;
 
-                  this.setState((state) => ({
-                    treeData: changeNodeAtPath({
-                      treeData: state.treeData,
-                      path,
-                      getNodeKey,
-                      newNode: { ...node, name },
-                    }),
-                  }));
-                }}
-              />
-            ),
-            buttons: [
-              <Button
-                // className={style.operateBtn}
-                key='addChild'
-                type="text"
-                icon={<PlusCircleOutlined />}
-                onClick={() =>
-                  this.setState((state) => ({
-                    treeData: addNodeUnderParent({
-                      treeData: state.treeData,
-                      parentKey: path[path.length - 1],
-                      expandParent: true,
-                      getNodeKey,
-                      newNode: {
-                        name: `默认`,
-                        id:(Math.random() * 1000000).toFixed(0),
-                      },
-                    }).treeData,
-                  }))
-                }
-              />,
-              <Button
-                // className={style.operateBtn}
-                key='removeChild'
-                type="text"
-                icon={<DeleteOutlined />}
-                onClick={(e) => {
-                  //判断是否有子节点
-                  console.log("e", e);
-                  console.log("state", this.state)
-                  this.setState((state) => ({
-                    treeData: removeNodeAtPath({
-                      treeData: state.treeData,
-                      path,
-                      getNodeKey,
-                    }),
-                  }))
-                }
-                }
-              />,
-              // <Button
-              //   // className={style.operateBtn}
-              //   type="text"
-              //   key='toEditor'
-              // >
-              //   <Link to={`/${~~pathname.split('/')[1]}/Editor`} target="_blank">
-              //     <EditOutlined />
-              //   </Link>
-              // </Button>,
-            ],
-          })}
-        />
+                    this.setState((state) => ({
+                      treeData: changeNodeAtPath({
+                        treeData: state.treeData,
+                        path,
+                        getNodeKey,
+                        newNode: { ...node, name },
+                      }),
+                    }));
+                  }}
+                />
+              ),
+              buttons: [
+                <Button
+                  // className={style.operateBtn}
+                  key='addChild'
+                  type="text"
+                  icon={<PlusCircleOutlined />}
+                  onClick={() =>
+                    this.setState((state) => ({
+                      treeData: addNodeUnderParent({
+                        treeData: state.treeData,
+                        parentKey: path[path.length - 1],
+                        expandParent: true,
+                        getNodeKey,
+                        newNode: {
+                          name: `默认`,
+                          id: (Math.random() * 1000000).toFixed(0),
+                        },
+                      }).treeData,
+                    }))
+                  }
+                />,
+                <Button
+                  // className={style.operateBtn}
+                  key='removeChild'
+                  type="text"
+                  icon={<DeleteOutlined />}
+                  onClick={(e) => {
+                    //判断是否有子节点
+                    console.log("e", e);
+                    console.log("state", this.state)
+                    this.setState((state) => ({
+                      treeData: removeNodeAtPath({
+                        treeData: state.treeData,
+                        path,
+                        getNodeKey,
+                      }),
+                    }))
+                  }
+                  }
+                />,
+                // <Button
+                //   // className={style.operateBtn}
+                //   type="text"
+                //   key='toEditor'
+                // >
+                //   <Link to={`/${~~pathname.split('/')[1]}/Editor`} target="_blank">
+                //     <EditOutlined />
+                //   </Link>
+                // </Button>,
+              ],
+            })}
+          />
+        <div style={{
+          // paddingTop:20,
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center'
+        }}>
+          <Button
+            style={{ width: 130, height: 35, marginRight: 20 }}
+            type='primary'
+            onClick={this.savePages}
+          >
+            保存页面结构
+          </Button>
+        </div>
       </>
     ) : (
       'loading'

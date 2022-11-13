@@ -232,7 +232,7 @@ export default function ModelTable() {
     <>
       <ProForm<any>
         style={{
-          paddingRight: 50
+          // paddingRight: 50
         }}
         formRef={formRef}
         params={{ pathname }}
@@ -280,7 +280,7 @@ export default function ModelTable() {
                 setModalView(true);
               }}
             >
-              复用其他table的数据
+              导入字段
             </Button>,
           ]}
           columns={columns}

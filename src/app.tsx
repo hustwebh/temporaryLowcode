@@ -6,7 +6,8 @@ import {
   UnorderedListOutlined,
   CrownOutlined,
   SnippetsOutlined,
-  PlusSquareOutlined
+  PlusSquareOutlined,
+  PieChartOutlined
 } from '@ant-design/icons';
 import { Button } from 'antd'
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
@@ -29,7 +30,8 @@ const IconMap = {
   crown: <CrownOutlined />,
   pages: <SnippetsOutlined />,
   models: <UnorderedListOutlined />,
-  addModel: <PlusSquareOutlined />
+  addModel: <PlusSquareOutlined />,
+  test:<PieChartOutlined />
 };
 
 const loopMenuItem = (menus: any[]): any[] =>
@@ -55,7 +57,7 @@ export async function getInitialState(): Promise<{
       });
       return msg.data;
     } catch (error) {
-      // history.push(loginPath);
+      history.push(loginPath);
       // history.push('/WorkPlace')
     }
     return undefined;
@@ -108,39 +110,79 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             name: '数据模型',
             icon: 'models',
             routes: [
-              // {
-              //   path: `/${projectId}/createNewModel`,
-              //   name:'新建数据模型',
-              //   icon:'addModel'
-              // },
+              {
+                path: `/${projectId}/createNewModel`,
+                name: '新建数据模型',
+                icon: 'addModel'
+              },
               ...routeData]
           },
-          {
-            path: `/${projectId}/createNewModel`,
-            name:'新建数据模型',
-            icon:'addModel'
-          },
+          // {
+          //   path: `/${projectId}/createNewModel`,
+          //   name: '新建数据模型',
+          //   icon: 'addModel'
+          // },
           {
             name: '页面管理',
             icon: 'pages',
             path: `/${projectId}/PagesManagement`
           },
-          // {
-          //   name:'项目发布',
-          //   icon:'test',
-          //   path: `/WorkPlace`
-          // },
+          {
+            name: '项目发布',
+            icon: 'test',
+            path: `/WorkPlace`
+          },
         ]
         return loopMenuItem(menuRoute);
       },
     },
+    menuItemRender: (itemProps, defaultDom) => {
+      if (itemProps.path?.includes('createNewModel')) {
+        console.log('itemProps', itemProps);
+        console.log('defaultDom', defaultDom);
+        return <div
+          style={{
+            display: 'flex',
+            alignItems: 'start',
+            gap: 8,
+          }}
+        >
+          <Link
+            to={`${pathname.split('/')[1]}/createNewModel`}
+            style={{
+              color:'#1890ff'
+            }}
+          >
+            <PlusSquareOutlined />
+            创建新模型
+          </Link>
+        </div>
+      }
+      return <Link
+      to={`${itemProps.path}`}
+    >
+      {defaultDom}
+    </Link>
+    },
+    // subMenuItemRender: (_, defaultDom) => {
+    //   console.log('defaultDom', defaultDom);
+    //   return <div
+    //     style={{
+    //       display: 'flex',
+    //       alignItems: 'center',
+    //       gap: 8,
+    //     }}
+    //   >
+    //     pre {defaultDom}
+    //   </div>
+    // },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 chlogin
       console.log(initialState?.currentUser);
       if (!initialState?.currentUser && location.pathname !== loginPath) {
-        // history.push(loginPath);
+        history.push(loginPath);
       }
     },
     // menuFooterRender: () => (

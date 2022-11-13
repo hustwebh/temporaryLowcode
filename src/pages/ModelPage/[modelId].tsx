@@ -184,7 +184,7 @@ export default function ModelTable() {
         if (res) {
           message.success('修改数据模型成功!');
           setTableData({
-            table_name:inputValue
+            table_name: inputValue
           })
           setRefreshSymbol(!refreshSymbol)
         }
@@ -230,7 +230,7 @@ export default function ModelTable() {
     })
     const selectData = selectDataNoflat.flat(Infinity)
     console.log("selectData", selectData);
-    selectData.forEach((_)=>actionRef?.current?.addEditRecord(_))
+    selectData.forEach((_) => actionRef?.current?.addEditRecord(_))
     return true;
   }
 
@@ -242,7 +242,7 @@ export default function ModelTable() {
     <>
       <ProForm<any>
         style={{
-          paddingRight: 50
+          // paddingRight: 50
         }}
         formRef={formRef}
         params={{ pathname }}
@@ -293,14 +293,12 @@ export default function ModelTable() {
             >
               导入字段
             </Button>,
-            // <Button
-            //   key="rows"
-            //   onClick={() => {
-            //     setModalView(true);
-            //   }}
-            // >
-            //   导出数据库
-            // </Button>,
+            <Button
+              key="rows"
+              onClick={() => { }}
+            >
+              导出数据库
+            </Button>,
           ]}
           columns={columns}
           editable={{
