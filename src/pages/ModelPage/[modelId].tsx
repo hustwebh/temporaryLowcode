@@ -1,7 +1,7 @@
 import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
 import { Button, message, Popconfirm, Modal, Input } from 'antd';
-import CopyModal from './components/copyModal';
+import CopyModal from '../DiseaseIndexLibrary/components/copyModal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { useRef, useState, useEffect } from 'react';
 import {

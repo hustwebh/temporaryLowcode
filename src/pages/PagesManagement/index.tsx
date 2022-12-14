@@ -134,6 +134,9 @@ export default class pagesManagement extends Component {
           </Button>
         </div>
           <SortableTree
+          style={{
+            height:'100%'
+          }}
             treeData={this.state.treeData}
             onChange={(treeData) => this.setState({ treeData })}
             generateNodeProps={({ node, path }) => ({

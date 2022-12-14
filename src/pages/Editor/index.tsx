@@ -4,8 +4,7 @@ import { config } from '@alilc/lowcode-engine';
 import { createFetchHandler } from '@alilc/lowcode-datasource-fetch-handler'
 import registerPlugins from './plugin';
 import EditView from './EditView';
-// import * as CodeGenerator from '@alilc/lowcode-code-generator/standalone-loader';
-// import Schema from '@/assets/schema.json'
+import 'antd/dist/antd.css';
 
 const LowcodePage: React.FC = () => {
   const [inited, setInited] = useState(false);
@@ -48,11 +47,3 @@ const LowcodePage: React.FC = () => {
 };
 
 export default LowcodePage;
-
-// import React from 'react'
-
-// export default function index() {
-//   return (
-//     <div>index</div>
-//   )
-// }

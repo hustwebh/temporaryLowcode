@@ -48,7 +48,8 @@
     "react-dom": "^16.6.0",
     "react-helmet-async": "^1.2.0",
     "react-sortable-tree": "^2.8.0",
-    "sass": "^1.54.0"
+    "sass": "^1.54.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@alilc/lowcode-datasource-fetch-handler": "^1.0.1",

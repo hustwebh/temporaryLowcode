@@ -18,6 +18,7 @@ import { request } from '@umijs/max';
 import TitleSetter from '@alilc/lowcode-setter-title';
 import BehaviorSetter from '@/components/LowCodeEditor/setters/behavior-setter';
 import CustomSetter from '@/components/LowCodeEditor/setters/custom-setter';
+import TestSetter from '@/components/LowCodeEditor/setters/test-setter';
 import Logo from '@/components/LowCodeEditor/plugins/logo';
 import PageManage from '@/components/LowCodeEditor/plugins/PageManage'
 
@@ -210,6 +211,7 @@ export default async function registerPlugins() {
         setters.registerSetter('TitleSetter', TitleSetter);
         setters.registerSetter('BehaviorSetter', BehaviorSetter);
         setters.registerSetter('CustomSetter', CustomSetter);
+        setters.registerSetter('TestSetter',TestSetter)
       },
     };
   }

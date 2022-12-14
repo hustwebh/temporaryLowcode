@@ -32,7 +32,7 @@ export default [
     // layout:false,
     routes: [
       {
-        path: '/:projectId/createNewModel',
+        path: '/:projectId/createNewResearch',
         // layout:true,
         component: './ModelPage/createNew',
       },
@@ -40,6 +40,11 @@ export default [
         path: '/:projectId/models/:modelId',
         // layout:true,
         component: './ModelPage/[modelId]',
+      },
+      {
+        path: '/:projectId/DiseaseIndexLibrary/:modelId',
+        // layout:true,
+        component: './DiseaseIndexLibrary', 
       },
       {
         path: '/:projectId/PagesManagement',

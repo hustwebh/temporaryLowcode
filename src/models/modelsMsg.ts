@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 export default function models() {
   const [allModelsMsg, setAllModelsMsg] = useState<any>([]);
   const [refreshSymbol, setRefreshSymbol] = useState<boolean>(false);
+  const [modalVisit, setModalVisit] = useState(false);
 
   //在开局试图获取
   useEffect(() => {
@@ -14,5 +15,5 @@ export default function models() {
     getAllModelsMsg();
   }, []);
 
-  return { allModelsMsg, refreshSymbol, setRefreshSymbol };
+  return { allModelsMsg, refreshSymbol, setRefreshSymbol,modalVisit, setModalVisit };
 }

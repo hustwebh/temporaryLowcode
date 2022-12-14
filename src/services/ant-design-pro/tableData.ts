@@ -2,7 +2,7 @@ import { request } from 'umi';
 
 /** 根据id获取某个数据模型 GET /v1/data-model/{id} */
 export async function getModelData(id: number) {
-  return request(`/api/v1/data-model/${id}`, {
+  return request(`/api/v1/model/${id}`, {
     method: 'GET',
     headers: {
       "Content-Type": "application/json"
@@ -45,6 +45,19 @@ export async function changeModelData(body: any) {
       fields: body.fields,
       table_name: body.table_name
     }
+  });
+}
+
+
+
+
+/** 根据id获取某个指标模型 GET /api/v1/model/{id} */
+export async function getIndicatorData(id: number|null) {
+  return request(`/api/v1/model/${id}`, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json"
+    },
   });
 }
 
