@@ -1,6 +1,5 @@
-import { Link } from 'umi';
-import { EditOutlined,CloseOutlined } from '@ant-design/icons';
-import { Button, Tooltip, Space } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import { Button, Tooltip } from 'antd';
 
 export function checkBoxCanSelect(item: any, indicatorsId: number | null): boolean {
   if (indicatorsId) {
@@ -49,26 +48,26 @@ export function fileToJson(file: any) {
 }
 
 /** 自定义实现对Menu组件内容的自定义渲染*/
-export function _MenuItemRender(name: string,categoryId:number) {
+export function _MenuItemRender(name: string, categoryId: number) {
   return (
     <div
       style={{
         display: 'flex',
         // alignItems: 'center',
-        justifyContent:'space-between',
+        justifyContent: 'space-between',
         gap: 8,
       }}
     >
       <div>{name}</div>
       <div>
-      <Tooltip title="编辑">
-        <Button 
-        type="ghost"
-        style={{border:"none"}}
-        icon={<EditOutlined style={{color:"#1890ff"}}/>} 
-        onClick={()=>{console.log(123)}}/>
-      </Tooltip>
-      {/* <Tooltip title="删除">
+        <Tooltip title="编辑">
+          <Button
+            type="ghost"
+            style={{ border: "none" }}
+            icon={<EditOutlined style={{ color: "#1890ff" }} />}
+            onClick={() => { console.log(123) }} />
+        </Tooltip>
+        {/* <Tooltip title="删除">
         <Button 
         type="ghost"
         style={{border:"none"}}
@@ -78,4 +77,53 @@ export function _MenuItemRender(name: string,categoryId:number) {
       </div>
     </div>
   )
+}
+
+/* 专门处理树列表中的指标模型项，使其符合属性antd Tree组件的数据格式 */
+function indicatorsDataToTree(indicatorsData:any){
+  return indicatorsData.map((item:any)=>({
+    title:item.name,
+    id:item.id.toString(),
+    isLeaf: true
+  }))
+}
+
+/* 将接口获得的不规范格式数据转化成符合属性组件规范的格式 */
+export function categoriesAndIndicatorsDataToTree(originalData: any) {
+  return originalData.map((item: any) => {
+    if(!item.children || !item.children.length) {
+      return {
+        title:item.name,
+        id:item.id.toString(),
+        children:indicatorsDataToTree(item.model_list)
+      }
+    }
+    return {
+      title: item.name,
+      id:item.id.toString(),
+      children:[...categoriesAndIndicatorsDataToTree(item.children),...indicatorsDataToTree(item.model_list)]
+    }
+  })
+}
+
+/* 寻找Tree组件的初始选中项 */
+export function findFirstSelectKey(TreeData:any) {
+  for(let i=0;i<TreeData.length;i++) {
+    if(TreeData[i].children.length>1) {
+     return TreeData[i].children[1].id;
+    }
+    if(TreeData[i].children && !TreeData[i].isLeaf) {
+      continue;
+    }
+  }
+}
+
+/* 从属性结构中获取到操作的节点对象 */
+export function getTargetNode (target:any, keysStr:string)  {
+  const keys = keysStr.split('.');
+  let res = target[keys.shift()]
+  while (res && keys.length) {
+    res = res.children[keys.shift()]
+  }
+  return res
 }

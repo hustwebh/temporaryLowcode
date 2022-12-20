@@ -201,7 +201,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           <Popconfirm
             title="确认删除该研究项目吗?"
             onConfirm={async () => {
-              const studyId = pathname.split('/')[3];
+              const studyId = itemProps?.path && itemProps?.path.split('/').pop();
               const result = await DeleteResearch({ study_id: ~~studyId })
               if (result) {
                 message.success("删除成功");

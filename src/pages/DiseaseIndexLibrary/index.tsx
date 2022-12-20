@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Col, Row, Button, Popconfirm,Modal } from 'antd';
+import { Col, Row, Button, Popconfirm, Modal, Input, Tree, message } from 'antd';
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
 import { getIndicatorData } from '@/services/ant-design-pro/tableData';
 
@@ -12,12 +12,19 @@ import {
   changeModelData,
   getModelData,
 } from '@/services/ant-design-pro/tableData';
-import { ExclamationCircleOutlined,PlusOutlined } from '@ant-design/icons';
-import { checkBoxCanSelect,_MenuItemRender } from '@/utils'
+import {
+  ExclamationCircleOutlined,
+  PlusOutlined,
+  PlusCircleOutlined,
+  EditOutlined,
+  MinusCircleOutlined
+} from '@ant-design/icons';
+import { checkBoxCanSelect, categoriesAndIndicatorsDataToTree, findFirstSelectKey } from '@/utils'
 import { getAllIndicators } from '@/services/ant-design-pro/layout';
 import { getAllModels } from '@/services/ant-design-pro/layout';
-import type { DataNode } from 'antd/es/tree';
-import { useModel,Link,useLocation } from 'umi';
+import { useModel, Link, useLocation } from 'umi';
+
+import TreeList from './components/TreeList'
 
 const { confirm } = Modal;
 
@@ -36,8 +43,8 @@ type DataSourceType = {
 
 export default function DiseaseIndexLibrary() {
   const { pathname } = useLocation();
-  const [categories, setCategories] = useState<any>([])
-  const [indicator, setIndicator] = useState<number | null>(null)
+  const [categories, setCategories] = useState<any>([])//获取分类和相关指标模型的原始数据
+  const [indicator, setIndicator] = useState<number | null>(null)//获取初始状态下的指标模型
 
 
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
@@ -109,7 +116,7 @@ export default function DiseaseIndexLibrary() {
         <a
           key="editable"
           onClick={() => {
-            console.log("beforeEdit",tableData.field_list);
+            console.log("beforeEdit", tableData.field_list);
             action?.startEditable?.(record.id);
           }}
         >
@@ -142,30 +149,16 @@ export default function DiseaseIndexLibrary() {
 
 
   const awaitAllCategories = async () => {
-    // const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
-    // const ToMenuData = result.map((category: any) => {
-    //   return {
-    //     key: category.id,
-    //     label: category.name,
-    //     children: category.children.map((indicators: any) => {
-    //       return {
-    //         key: indicators.id,
-    //         label: _MenuItemRender(indicators.name,category.id)
-    //         // label:indicators.name
-    //       }
-    //     })
-    //   }
-    // })
-    // setCategories(ToMenuData);
-    // //寻找第一个有指标模型的项
-    // for (let i = 0; i < ToMenuData.length; i++) {
-    //   if (!ToMenuData[i].children.length) continue;
-    //   setIndicator(ToMenuData[i].children[0].key)
-    // }
+    const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
+    const TreeData = categoriesAndIndicatorsDataToTree(result);
+    console.log("TreeData", TreeData)
+    // console.log("findFirstSelectKey",findFirstSelectKey(TreeData));
+    setCategories(TreeData);
+    setIndicator(findFirstSelectKey(TreeData));
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
-    console.log("awaitGetIndicator",result);
+    console.log("awaitGetIndicator", result);
     setTableData(result);
   }
   const awaitAllIndicators = async () => {
@@ -178,15 +171,16 @@ export default function DiseaseIndexLibrary() {
         title: item.name,
         value: reduceStr,
         disableCheckbox: selectAble,
-        children: item.field_list
-          ? (item?.field.map((item: any) => {
-            return {
-              title: item.name,
-              value: `${reduceStr}-${item.table_name}`,
-              disableCheckbox: selectAble,
-            }
-          }))
-          : []
+        children: [],
+        // children: item.field_list
+        //   ? (item?.field.map((item: any) => {
+        //     return {
+        //       title: item.name,
+        //       value: `${reduceStr}-${item.table_name}`,
+        //       disableCheckbox: selectAble,
+        //     }
+        //   }))
+        //   : []
       };
     });
     setTreeNodeList(TreeNodeList);
@@ -264,23 +258,14 @@ export default function DiseaseIndexLibrary() {
     <div style={{ height: "100%" }}>
       <Row justify="space-between" style={{ height: "100%" }}>
         <Col span={5}>
-          <Button icon={<PlusOutlined style={{color:"#1890ff"}}/>}>添加分类</Button>
+          {/* <Button icon={<PlusOutlined style={{ color: "#1890ff" }} />}>添加分类</Button> */}
           {
             categories.length
-              // ? (<Menu
-              //   onClick={changeSider}
-              //   style={{ width: '100%', height: '100%' }}
-              //   selectedKeys={
-              //     categories[0].children.length
-              //       ? [categories[0].children[0].key.toString()]
-              //       : [categories[0].key.toString()]
-              //   }
-              //   mode="inline"
-              //   items={categories}
-              //   >
-              // </Menu>)
-              ?(
-
+              ? (
+                <TreeList
+                  TreeData={categories}
+                  selectKey={indicator}
+                />
               )
               : "待添加研究项"
           }

@@ -13,8 +13,8 @@ const waitTime = (time: number = 100) => {
   });
 };
 
-export default ({ modalView, setModalView, treeNodeList,getDataFromOtherModel }
-  : { modalView: boolean; setModalView: any; treeNodeList: any;getDataFromOtherModel:any }) => {
+export default ({ modalView, setModalView, treeNodeList, getDataFromOtherModel }
+  : { modalView: boolean; setModalView: any; treeNodeList: any; getDataFromOtherModel: any }) => {
   const [form] = Form.useForm<{ name: string; company: string }>();
   const [value, setValue] = useState([]);
 
