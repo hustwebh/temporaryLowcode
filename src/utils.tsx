@@ -80,46 +80,66 @@ export function _MenuItemRender(name: string, categoryId: number) {
 }
 
 /* 专门处理树列表中的指标模型项，使其符合属性antd Tree组件的数据格式 */
-function indicatorsDataToTree(indicatorsData:any){
-  return indicatorsData.map((item:any)=>({
-    title:item.name,
-    id:item.id.toString(),
+function indicatorsDataToTree(indicatorsData: any) {
+  return indicatorsData.map((item: any) => ({
+    title: item.name,
+    id: item.id,
+    parent_id: item.category_id,
     isLeaf: true
   }))
 }
 
 /* 将接口获得的不规范格式数据转化成符合属性组件规范的格式 */
-export function categoriesAndIndicatorsDataToTree(originalData: any) {
+export function categoriesAndIndicatorsDataToTreeWithoutKey(originalData: any) {
   return originalData.map((item: any) => {
-    if(!item.children || !item.children.length) {
+    if (!item.children || !item.children.length) {
       return {
-        title:item.name,
-        id:item.id.toString(),
-        children:indicatorsDataToTree(item.model_list)
+        title: item.name,
+        id: item.id,
+        parent_id: item.parent_id,
+        children: indicatorsDataToTree(item.model_list)
       }
     }
     return {
       title: item.name,
-      id:item.id.toString(),
-      children:[...categoriesAndIndicatorsDataToTree(item.children),...indicatorsDataToTree(item.model_list)]
+      id: item.id,
+      parent_id: item.parent_id,
+      children: [...categoriesAndIndicatorsDataToTreeWithoutKey(item.children), ...indicatorsDataToTree(item.model_list)]
+    }
+  })
+}
+
+/* 将树形数据添加key便于后续增删改查操作 */
+export function TreeDataWithoutKeyToTreeData(treeDataWithoutKey: any, key: string = '') {
+  return treeDataWithoutKey.map((item: any, index: number) => {
+    if (!item.children || !item.children.length) {
+      return {
+        ...item,
+        key: `${key}.${index}`
+      }
+    }
+    return {
+      ...item,
+      key: `${key}.${index}`,
+      children: TreeDataWithoutKeyToTreeData(item.children, `${key}.${index}`)
     }
   })
 }
 
 /* 寻找Tree组件的初始选中项 */
-export function findFirstSelectKey(TreeData:any) {
-  for(let i=0;i<TreeData.length;i++) {
-    if(TreeData[i].children.length>1) {
-     return TreeData[i].children[1].id;
+export function findFirstSelectKey(TreeData: any) {
+  for (let i = 0; i < TreeData.length; i++) {
+    if (TreeData[i].children.length > 1) {
+      return TreeData[i].children[1].id;
     }
-    if(TreeData[i].children && !TreeData[i].isLeaf) {
+    if (TreeData[i].children && !TreeData[i].isLeaf) {
       continue;
     }
   }
 }
 
 /* 从属性结构中获取到操作的节点对象 */
-export function getTargetNode (target:any, keysStr:string)  {
+export function getTargetNodeByKey(target: any, keysStr: string) {
   const keys = keysStr.split('.');
   let res = target[keys.shift()]
   while (res && keys.length) {

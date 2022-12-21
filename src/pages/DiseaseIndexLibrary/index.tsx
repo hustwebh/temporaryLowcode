@@ -19,7 +19,12 @@ import {
   EditOutlined,
   MinusCircleOutlined
 } from '@ant-design/icons';
-import { checkBoxCanSelect, categoriesAndIndicatorsDataToTree, findFirstSelectKey } from '@/utils'
+import {
+  checkBoxCanSelect,
+  categoriesAndIndicatorsDataToTreeWithoutKey,
+  TreeDataWithoutKeyToTreeData,
+  findFirstSelectKey
+} from '@/utils'
 import { getAllIndicators } from '@/services/ant-design-pro/layout';
 import { getAllModels } from '@/services/ant-design-pro/layout';
 import { useModel, Link, useLocation } from 'umi';
@@ -150,20 +155,18 @@ export default function DiseaseIndexLibrary() {
 
   const awaitAllCategories = async () => {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
-    const TreeData = categoriesAndIndicatorsDataToTree(result);
-    console.log("TreeData", TreeData)
+    const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
+    const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
     // console.log("findFirstSelectKey",findFirstSelectKey(TreeData));
     setCategories(TreeData);
     setIndicator(findFirstSelectKey(TreeData));
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
-    console.log("awaitGetIndicator", result);
     setTableData(result);
   }
   const awaitAllIndicators = async () => {
     const result = await getAllIndicators();
-    console.log("awaitAllIndicators", result);
     const TreeNodeList = result.map((item: any) => {
       const reduceStr = `${item.table_name}`;
       const selectAble = checkBoxCanSelect(item, indicator);
@@ -171,16 +174,16 @@ export default function DiseaseIndexLibrary() {
         title: item.name,
         value: reduceStr,
         disableCheckbox: selectAble,
-        children: [],
-        // children: item.field_list
-        //   ? (item?.field.map((item: any) => {
-        //     return {
-        //       title: item.name,
-        //       value: `${reduceStr}-${item.table_name}`,
-        //       disableCheckbox: selectAble,
-        //     }
-        //   }))
-        //   : []
+        // children: [],
+        children: item.field_list
+          ? (item?.field_list.map((item: any) => {
+            return {
+              title: item.name,
+              value: `${reduceStr}-${item.table_name}`,
+              disableCheckbox: selectAble,
+            }
+          }))
+          : []
       };
     });
     setTreeNodeList(TreeNodeList);
@@ -197,7 +200,6 @@ export default function DiseaseIndexLibrary() {
       if (selectOptions.length === 1) {
         //代表这个表所有的都选了
         const selectedModel = allIndicators.filter((item: any) => item.table_name === selectOptions[0])[0];
-        console.log("selectedModel", selectedModel)
         const selectedData = selectedModel.field_list.map((item: any) => {
           return {
             ...item,
@@ -264,7 +266,8 @@ export default function DiseaseIndexLibrary() {
               ? (
                 <TreeList
                   TreeData={categories}
-                  selectKey={indicator}
+                  defaultIndicatorId={indicator}
+                  setIndicator={setIndicator}
                 />
               )
               : "待添加研究项"

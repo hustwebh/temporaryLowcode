@@ -1,30 +1,53 @@
 import React, { Key, useRef, useState, useEffect, useCallback } from 'react';
 import { Tree, Modal, Form, Input, message, Button } from "antd";
 import { PlusCircleOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { getTargetNode } from '@/utils';
+import { getTargetNodeByKey } from '@/utils';
 import styles from './index.less';
+import { AnyKindOfDictionary } from 'lodash';
 const { DirectoryTree, TreeNode } = Tree;
 
-const TreeList = ({ TreeData, selectKey }: { TreeData: any, selectKey: any }) => {
+const TreeList = ({ TreeData, defaultIndicatorId, setIndicator }: { TreeData: any, defaultIndicatorId: any, setIndicator: any }) => {
   const [treeData, setTreeData] = useState<any>(TreeData || []);
-  console.log("selectKey", selectKey);
+  // console.log("defaultIndicatorId", defaultIndicatorId);
+  console.log("treeData", treeData);
 
-  const onSelect = (keys: Key[]) => {
+  // const getDefaultSelectKey = (defaultSelectNodeId: number) => {
+  //   const quene = [...treeData]
+  //   do {
+  //     const current = quene.pop() // 改成pop，取最后一个，后入先出
+  //     current.isTravel = true
+  //     if (current.children) {
+  //       quene.push(...[...current.children].reverse()) // 保证从左到右遍历
+  //     }
+  //     if (current.id === defaultSelectNodeId) {
+  //       console.log("current.key", current);
+  //       return current.key
+  //     }
+  //   } while (quene.length)
+  //   return null;
+  // }
+
+  const onSelect = (keys: Key[], e: any) => {
     console.log("select", keys);
+    // const targetNode = getTargetNodeByKey(treeData, keys.toString())
+    // setIndicator(targetNode.id)
   }
 
-  const titleRender = (nodeData: any, index: number, info: any) => {
+  const titleRender = (nodeData: any) => {
     return (<>
       {nodeData.title}
       <Button
         onClick={(e: any) => {
           e.stopPropagation();
-          const currentKeyPath = `${info.key}.${index}`.slice(1)
+          const currentKeyPath = nodeData.key.slice(1)
           setTreeData((data: any) => {
             const copyData = data.concat([]);//将当前数组进行深度拷贝，对新数组进行修改并返回，否则视图不会更新
-            const current = getTargetNode(data, currentKeyPath) // 拿到当前节点
+            const current = getTargetNodeByKey(data, currentKeyPath) // 拿到当前节点
               // 给children属性追加一个新节点
-              ; (current.children || (current.children = [])).push({ title: '新增的节点' })
+              ; (current.children || (current.children = [])).push({
+                title: '新增的节点',
+                key: `${current.key}.${current.children.length}`
+              })
             return copyData
           })
         }}
@@ -34,11 +57,21 @@ const TreeList = ({ TreeData, selectKey }: { TreeData: any, selectKey: any }) =>
       />
       <Button onClick={(e: any) => {
         e.stopPropagation();
-        const currentKeyPath = `${info.key}`.slice(1)
+        console.log("nodeData", nodeData);
+        const parentKeyPath = nodeData.key.substring(0, nodeData.key.length - 2).slice(1)
+        console.log("parentKeyPath", parentKeyPath);
+        const currentKeyPath = nodeData.key.slice(1)
+        console.log("currentKeyPath", currentKeyPath);
         setTreeData((data: any) => {
           const copyData = data.concat([]);
-          const current = getTargetNode(data, currentKeyPath)
-          current.children.splice(index, 1)
+          const current = getTargetNodeByKey(data, currentKeyPath)
+          console.log("current", current);
+          if(parentKeyPath ==='') {//删除的是根部节点之一
+            copyData.splice(~~currentKeyPath,1)
+          }else {
+            const parent = getTargetNodeByKey(data, parentKeyPath)
+            parent.children.splice(~~currentKeyPath,1)
+          }
           return copyData
         })
       }}
@@ -49,21 +82,21 @@ const TreeList = ({ TreeData, selectKey }: { TreeData: any, selectKey: any }) =>
       <Edit
         target={treeData}
         value={nodeData.value}
-        currentKeyPath={`${info.key}.${index}`.slice(1)}
+        currentKeyPath={nodeData.key.slice(1)}
         setState={setTreeData}
       />
     </>)
   }
 
-  const TreeNodeRender = (treeData = [], info = { path: '', key: '' }) => {
-    return treeData.map((item: any, index: number) => (
+  const TreeNodeRender = (treeData = []) => {
+    return treeData.map((item: any) => (
       <TreeNode
-        title={titleRender(item, index, info)}
+        title={titleRender(item)}
         isLeaf={item.isLeaf || false}
+        key={item.key}
         selectable={item.isLeaf || false}
-        // selected={item.id === selectKey}
       >
-        {TreeNodeRender(item.children, { path: `${info.path}/${item.title}`, key: `${info.key}.${index}` })}
+        {TreeNodeRender(item.children)}
       </TreeNode>
     ))
   }
@@ -73,10 +106,10 @@ const TreeList = ({ TreeData, selectKey }: { TreeData: any, selectKey: any }) =>
       defaultExpandAll={true}
       blockNode={true}
       selectable={true}
-      showLine
+      // showLine
       onSelect={onSelect}
-      onRightClick={()=>console.log("RightClick")}
-      defaultSelectedKeys={[selectKey]}
+      onRightClick={() => console.log("RightClick")}
+    // defaultSelectedKeys={[getDefaultSelectKey(defaultIndicatorId)]}
     >
       {TreeNodeRender(treeData)}
     </DirectoryTree>
@@ -91,9 +124,9 @@ const Edit = (props: any) => {
   }, [setValue])
   const handleBlur = useCallback((e) => {
     e.stopPropagation();
-    props.setState((data:any)=>{
+    props.setState((data: any) => {
       const copyData = data.concat([]);
-      const current = getTargetNode(props.target, props.currentKeyPath)
+      const current = getTargetNodeByKey(props.target, props.currentKeyPath)
       current.title = value // 给当前节点的title赋值
       return copyData;
     })
@@ -107,11 +140,11 @@ const Edit = (props: any) => {
         onChange={handleChange}
         onBlur={handleBlur}
       />) : (<Button
-        onClick={()=>setIsEdit(true)}
-        icon={<EditOutlined />} 
-        type='ghost' 
+        onClick={() => setIsEdit(true)}
+        icon={<EditOutlined />}
+        type='ghost'
         className={styles.TreeListButtonIcon}
-        />)
+      />)
   )
 }
 

@@ -29,11 +29,9 @@ export default {
         {
           "id": 1,
           "study_id": 1,
-          "parent_id": 1,
+          "parent_id": null,
           "root_id": 1,
           "name": "实验室检查",
-          "level": 1,
-          "index": 1,
           "model_list": [
             {
               "id": 10,
@@ -42,14 +40,6 @@ export default {
               "study_id": 1,
               "category_id": 1
             },
-            {
-              "id": 22,
-              "table_name": "test2",
-              "name": "测试2",
-              "study_id": 1,
-              "category_id": 1
-            },
-            
           ],
           "children": [
             {
@@ -72,6 +62,22 @@ export default {
             },
           ],
         },
+        {
+          "id":100,
+          "study_id": 1,
+          "parent_id": null,
+          "root_id": 1,
+          "name": "实验室检查2",
+          "model_list": [
+            {
+              "id": 101,
+              "table_name": "blood2",
+              "name": "血常规2",
+              "study_id": 1,
+              "category_id": 100
+            },
+          ],
+        }
       ]
     )
   },
