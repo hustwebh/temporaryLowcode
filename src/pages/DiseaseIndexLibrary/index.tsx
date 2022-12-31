@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Col, Row, Button, Popconfirm, Modal, Input, Tree, message } from 'antd';
-import { getAllCategories } from '@/services/ant-design-pro/categroy';
+import { Col, Row, Button, Popconfirm, Modal, Input, message } from 'antd';
 import { getIndicatorData } from '@/services/ant-design-pro/tableData';
 
 import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-design/pro-components';
@@ -26,6 +25,10 @@ import {
   findFirstSelectKey
 } from '@/utils'
 import { getAllIndicators } from '@/services/ant-design-pro/layout';
+import {
+  getAllCategories,
+  addCategory
+} from '@/services/ant-design-pro/categroy'
 import { getAllModels } from '@/services/ant-design-pro/layout';
 import { useModel, Link, useLocation } from 'umi';
 
@@ -155,11 +158,14 @@ export default function DiseaseIndexLibrary() {
 
   const awaitAllCategories = async () => {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
+    console.log(result);
+
+    // const result = await getAllCategories({ study_id: 1 });
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
-    // console.log("findFirstSelectKey",findFirstSelectKey(TreeData));
     setCategories(TreeData);
     setIndicator(findFirstSelectKey(TreeData));
+
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
@@ -224,43 +230,73 @@ export default function DiseaseIndexLibrary() {
     return true;
   }
 
-  const showPromiseConfirm = () => {
-    let inputValue = tableData.name;
-    confirm({
-      title: '将该数据模型确认名称并上传',
-      icon: <ExclamationCircleOutlined />,
-      content: (
-        <Input
-          defaultValue={inputValue}
-          onChange={(e) => {
-            inputValue = e.target.value;
-          }}
-        />
-      ),
-      async onOk() {
-        const SubmitValues = {
-          id: tableData.id,
-          table_name: inputValue,
-          field_list: formRef.current?.getFieldsValue?.().table,
-        };
-        const res = await changeModelData(SubmitValues);
-        console.log("res", res);
-        if (res) {
-          message.success('修改数据模型成功!');
-          setTableData({
-            table_name: inputValue
-          })
-        }
-      },
-      onCancel() { },
-    });
+  const addCategoryAtRoot = async () => {
+    const newIndex = categories.length
+    const result = await addCategory({
+      name: "新建节点",
+      parent_id: null,
+    })
+    if (result) {
+      setCategories([...categories, {
+        title: "新建节点",
+        key: `.${newIndex}`,
+        parent_id: null,
+      }])
+    } else {
+      message.error("添加分类失败，请重试")
+    }
+  }
+
+  const showPromiseConfirm =async () => {
+    // let inputValue = tableData.name;
+    // confirm({
+    //   title: '将该数据模型确认名称并上传',
+    //   icon: <ExclamationCircleOutlined />,
+    //   content: (
+    //     <Input
+    //       defaultValue={inputValue}
+    //       onChange={(e) => {
+    //         inputValue = e.target.value;
+    //       }}
+    //     />
+    //   ),
+    //   async onOk() {
+    //     const SubmitValues = {
+    //       id: tableData.id,
+    //       table_name: inputValue,
+    //       field_list: formRef.current?.getFieldsValue?.().table,
+    //     };
+    //     const res = await changeModelData(SubmitValues);
+    //     console.log("res", res);
+    //     if (res) {
+    //       message.success('修改数据模型成功!');
+    //       setTableData({
+    //         table_name: inputValue
+    //       })
+    //     }
+    //   },
+    //   onCancel() { },
+    // });
+    const SubmitValues = {
+      id: tableData.id,
+      // table_name: inputValue,
+      field_list: formRef.current?.getFieldsValue?.().table,
+    };
+    const res = await changeModelData(SubmitValues);
+    console.log("res", res);
+    if (res) {
+      message.success('修改数据模型成功!');
+    }
   };
 
   return (
     <div style={{ height: "100%" }}>
       <Row justify="space-between" style={{ height: "100%" }}>
         <Col span={5}>
-          {/* <Button icon={<PlusOutlined style={{ color: "#1890ff" }} />}>添加分类</Button> */}
+          <Button
+            icon={<PlusOutlined style={{ color: "#1890ff" }} />}
+            onClick={addCategoryAtRoot}
+          >添加分类</Button>
           {
             categories.length
               ? (
@@ -309,7 +345,7 @@ export default function DiseaseIndexLibrary() {
                 controlled
                 actionRef={actionRef}
                 editableFormRef={editorFormRef}
-                headerTitle={tableData.name}
+                headerTitle={`${tableData.name}/(${tableData.table_name})`}
                 value={tableData.field_list}
                 onChange={EditableTableChanged}
                 name="table"
@@ -318,16 +354,16 @@ export default function DiseaseIndexLibrary() {
                   record: () => ({ id: uuidv4() }),
                 }}
                 toolBarRender={() => [
-                  <Popconfirm
-                    title="确认删除该数据模型吗?"
-                    // onConfirm={handleConfirm}
-                    onConfirm={() => { }}
-                    onCancel={() => null}
-                  >
-                    <Button key="delete" type="dashed" danger>
-                      删除该数据模型
-                    </Button>
-                  </Popconfirm>,
+                  // <Popconfirm
+                  //   title="确认删除该数据模型吗?"
+                  //   // onConfirm={handleConfirm}
+                  //   onConfirm={() => { }}
+                  //   onCancel={() => null}
+                  // >
+                  //   <Button key="delete" type="dashed" danger>
+                  //     删除该数据模型
+                  //   </Button>
+                  // </Popconfirm>,
                   <Button
                     key="rows"
                     onClick={() => {

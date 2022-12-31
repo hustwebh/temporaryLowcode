@@ -10,3 +10,17 @@ export async function getAllCategories(data:{study_id?:number}|null) {
     data,
   });
 }
+
+/** 新添加分类 POST /api/v1/category */
+export async function addCategory(data:{
+  name:string;
+  parent_id:string | null;
+}|null) {
+  return request('/api/v1/category', {
+    headers: {
+      "Content-Type": "application/json"
+    },   
+    method: 'POST',
+    data,
+  });
+}

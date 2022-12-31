@@ -97,7 +97,7 @@ export function categoriesAndIndicatorsDataToTreeWithoutKey(originalData: any) {
         title: item.name,
         id: item.id,
         parent_id: item.parent_id,
-        children: indicatorsDataToTree(item.model_list)
+        children: indicatorsDataToTree(item.model_list || [])
       }
     }
     return {
