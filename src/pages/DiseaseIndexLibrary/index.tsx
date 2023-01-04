@@ -6,7 +6,7 @@ import {
   modifyIndicatorData,
   modifyTableData
 } from '@/services/ant-design-pro/tableData';
-import {modifyIndicator} from '@/services/ant-design-pro/categroy'
+import { modifyIndicator } from '@/services/ant-design-pro/categroy'
 import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
 import CopyModal from './components/copyModal';
@@ -105,16 +105,14 @@ const TagList: React.FC<{
 };
 
 const TableTitle: React.FC<{
-  table_name: string;
-  table_id:number;
+  tableData: any
   setTableName: any
-}> = ({ table_name,table_id, setTableName }) => {
-  console.log("table_name", table_name);
+}> = ({ tableData, setTableName }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [value, setValue] = useState<string>(table_name)
+  const [value, setValue] = useState<string>(tableData.table_name)
   const handleChange = (e: any) => {
     setValue(e.target.value)
-    // setTableName(e.target.value)
+    setTableName(e.target.value)
   }
   return isEdit ? (
     <div>
@@ -123,10 +121,10 @@ const TableTitle: React.FC<{
         value={value}
         onChange={handleChange}
         onPressEnter={async () => {
-          const result = await modifyIndicatorData(table_id,{
-            table_name:value
+          const result = await modifyIndicatorData(tableData.id, {
+            table_name: value
           })
-          if(result) {
+          if (result) {
             setTableName(value);
             setIsEdit(false);
           }
@@ -135,7 +133,7 @@ const TableTitle: React.FC<{
     </div>
   ) : (
     <div>
-      {`${table_name}`}
+      {`${tableData.table_name}`}
       <Button
         icon={<EditOutlined />}
         type='ghost'
@@ -152,14 +150,13 @@ export default function DiseaseIndexLibrary() {
   const [categories, setCategories] = useState<any>([])//获取分类和相关指标模型的原始数据
   const [indicator, setIndicator] = useState<number | null>(null)//获取初始状态下的指标模型
 
-
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
   const [modalView, setModalView] = useState(false);
   const [allIndicators, setAllIndicators] = useState<any>([]);
   const [treeNodeList, setTreeNodeList] = useState<any>([]);
-  const formRef = useRef<ProFormInstance<any>>();
   const [tableData, setTableData] = useState<any>({});
   const [tableName, setTableName] = useState<string>("");
+  const formRef = useRef<ProFormInstance<any>>();
   const editorFormRef = useRef<EditableFormInstance<DataSourceType>>();
   const actionRef = useRef<any>();
 
@@ -219,16 +216,17 @@ export default function DiseaseIndexLibrary() {
       title: '字典值',
       dataIndex: 'dict_values',
       width: '20%',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            message: '此项为必填项',
-          },
-        ],
-      },
-      renderFormItem: (_, { isEditable }) => {
-        return isEditable ? <TagList /> : <Input />;
+      // formItemProps: {
+      //   rules: [
+      //     {
+      //       required: true,
+      //       message: '此项为必填项',
+      //     },
+      //   ],
+      // },
+      renderFormItem: () => {
+        return <TagList />;
+        // return <TagList />;
       },
       render: (_, row) => row?.dict_values?.map((item) => <Tag key={item.name}>{item.value}</Tag>),
     },
@@ -240,7 +238,6 @@ export default function DiseaseIndexLibrary() {
         <a
           key="editable"
           onClick={() => {
-            console.log("beforeEdit", tableData.field_list);
             action?.startEditable?.(record.id);
           }}
         >
@@ -262,45 +259,36 @@ export default function DiseaseIndexLibrary() {
   ];
 
   useEffect(() => {
-    awaitAllCategories();//获取一个研究下的分类和对应模型种类
+    awaitAllCategories()
   }, [pathname])
   useEffect(() => {
+    console.log("indicator",indicator);
     if (indicator) {
-      Promise.all([
-        awaitGetIndicator(),//获取当前页面上的指标模型
-        awaitAllIndicators()//获取所有其他的指标模型用于复制字段
-      ])
-        .then((res) => {
-          // console.log(tableData.field_list);
-          formRef?.current?.setFieldsValue({
-            table: tableData.field_list
-          })
-        })
+      awaitGetIndicator();//获取当前页面上的指标模型
+      awaitAllIndicators();//获取所有其他的指标模型用于复制字段
     }
   }, [indicator])
 
-  // const FormRequest = () => {
-  //   return {
-  //     data: tableData.field_list,
-  //     success: true,
-  //   }
-  // }
+  const formRequest = async () => {
+    const result = await awaitGetIndicator();
+    return {
+      data: result.field_list,
+      success: true,
+    }
+  }
 
   const awaitAllCategories = async () => {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
-    console.log("result", result);
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
-    console.log("TreeData", TreeData);
     setCategories(TreeData);
     setIndicator(findFirstSelectKey(TreeData));
-
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
-    console.log("table", result);
     setTableData(result);
-    setTableName(result.table_name)
+    setTableName(result.table_name);
+    return result;
   }
   const awaitAllIndicators = async () => {
     const result = await getAllIndicators();
@@ -327,8 +315,13 @@ export default function DiseaseIndexLibrary() {
     setAllIndicators(result);
   }
 
-  const EditableTableChanged = () => {
-    console.log(123);
+  const EditableTableChanged = (value:any) => {
+    setTableData((prevState:any)=>{
+      return {
+        ...prevState,
+        field_list:value
+      }
+    })
   }
 
   const getDataFromOtherModel = (value: any[]) => {
@@ -356,7 +349,7 @@ export default function DiseaseIndexLibrary() {
       }
     })
     const selectData = selectDataNoflat.flat(Infinity)
-    console.log("selectData", selectData);
+    // console.log("selectData", selectData);
     selectData.forEach((_) => actionRef?.current?.addEditRecord(_))
     return true;
   }
@@ -382,18 +375,17 @@ export default function DiseaseIndexLibrary() {
 
   const showPromiseConfirm = async () => {
     const formValue = formRef.current?.getFieldsValue?.().table;
+    console.log("formValue", formValue);
     const result = await modifyTableData(tableData.id, {
       field_list: formValue.map((item: any) => ({
         comment: item.comment,
         decimal_point: item.decimal_point,
         length: ~~item.length,
         not_null: ~~item.not_null,
-        name: item.name,
         type: item.type,
         dict_values: item.dict_values
       }))
     })
-    console.log("updateData", result);
     if (result) {
       message.success('修改数据模型成功!');
     }
@@ -425,11 +417,6 @@ export default function DiseaseIndexLibrary() {
               table: DataSourceType[];
             }>
               formRef={formRef}
-              // initialValues={{
-              //   table: tableData.field_list,
-              // }}
-              // params={{ pathname, indicator }}
-              // request={FormRequest}
               validateTrigger="onBlur"
               submitter={{
                 render: (props, doms) => {
@@ -449,11 +436,16 @@ export default function DiseaseIndexLibrary() {
                 scroll={{
                   x: 960,
                 }}
+                // loading={tableLoading}
                 controlled
+                // expandable={{ expandedRowRender }}
                 actionRef={actionRef}
                 editableFormRef={editorFormRef}
-                headerTitle={<TableTitle table_name={tableName} setTableName={setTableName} table_id={tableData.id}/>}
+                headerTitle={<TableTitle tableData={tableData} setTableName={setTableName} />}
+                value={tableData.field_list}
                 onChange={EditableTableChanged}
+                params={{ indicator }}
+                request={formRequest}
                 name="table"
                 recordCreatorProps={{
                   position: 'bottom',

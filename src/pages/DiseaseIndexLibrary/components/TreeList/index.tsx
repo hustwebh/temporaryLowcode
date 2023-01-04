@@ -39,10 +39,9 @@ const TreeList = ({ TreeData, defaultIndicatorId, setIndicator }: { TreeData: an
   //   return null;
   // }
 
-  const onSelect = (keys: Key[], e: any) => {
+  const onSelect = async (keys: Key[], e: any) => {
     const targetNode = getTargetNodeByKey(treeData, keys[0].toString().slice(1))
-    // console.log("select", targetNode);
-    setIndicator(targetNode.id)
+    await setIndicator(targetNode.id)
   }
 
   //右键菜单失去焦点时候关闭菜单
@@ -114,20 +113,40 @@ const Edit = (props: any) => {
   const handlePressEnter = useCallback(async (e) => {
     e.stopPropagation();
     const target = getTargetNodeByKey(props.target, props.currentKeyPath);
-    const result = await modifyCategory(target.id, {
-      name: value,
-      parent_id: target.parent_id,
-    });
-    if (result) {
-      props.setState((data: any) => {
-        const copyData = data.concat([]);
-        const current = target
-        current.title = value // 给当前节点的title赋值
-        return copyData;
+    if (props.nodeType) {
+      const result = await modifyIndicator(target.id, {
+        name: value,
+        category_id: target.parent_id,
       })
-      setIsEdit(false)
+      console.log(result);
+      
+      if (result) {
+        props.setState((data: any) => {
+          const copyData = data.concat([]);
+          const current = target
+          current.title = value // 给当前节点的title赋值
+          return copyData;
+        })
+        setIsEdit(false)
+      } else {
+        message.error("修改失败请重试")
+      }
     } else {
-      message.error("修改失败请重试")
+      const result = await modifyCategory(target.id, {
+        name: value,
+        parent_id: target.parent_id,
+      });
+      if (result) {
+        props.setState((data: any) => {
+          const copyData = data.concat([]);
+          const current = target
+          current.title = value // 给当前节点的title赋值
+          return copyData;
+        })
+        setIsEdit(false)
+      } else {
+        message.error("修改失败请重试")
+      }
     }
   }, [setValue, value])
   return (
@@ -270,6 +289,7 @@ const RightClickMenu = (props: any) => {
         type='default'
       >{`删除${nodeType ? "指标" : "目录"}`}</Button>
       <Edit
+        nodeType={nodeType}
         target={treeData}
         value={categoryName || ""}
         currentKeyPath={id?.slice(1)}

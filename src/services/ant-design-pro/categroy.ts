@@ -82,7 +82,7 @@ export async function modifyIndicator(target_id: number, data: {
   study_id?: number;
   category_id?:number;
 }) {
-  return request(`/api/v1/category/${target_id}`, {
+  return request(`/api/v1/model/${target_id}`, {
     headers: {
       "Content-Type": "application/json"
     },
