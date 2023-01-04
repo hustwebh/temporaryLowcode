@@ -1,4 +1,4 @@
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** 获取所有项目模型 POST /api/v1/data-model/all */
 export async function getAllModels(options = null) {
@@ -7,7 +7,7 @@ export async function getAllModels(options = null) {
       "Content-Type": "application/json"
     },   
     method: 'POST',
-    body:options,
+    body:options, 
   });
 }
 

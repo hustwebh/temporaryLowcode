@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Col, Row, Button, Popconfirm, Modal, Input, message } from 'antd';
-import { getIndicatorData } from '@/services/ant-design-pro/tableData';
-
+import { Col, Row, Button, Input, message, Space, Tag } from 'antd';
+import type { InputRef } from 'antd';
+import {
+  getIndicatorData,
+  modifyIndicatorData,
+  modifyTableData
+} from '@/services/ant-design-pro/tableData';
+import {modifyIndicator} from '@/services/ant-design-pro/categroy'
 import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
 import CopyModal from './components/copyModal';
-import { v4 as uuidv4 } from 'uuid'
-import {
-  delModelData,
-  changeModelData,
-  getModelData,
-} from '@/services/ant-design-pro/tableData';
+import { v4 as uuidv4 } from 'uuid';
+// import {
+//   delModelData,
+//   changeModelData,
+//   getModelData,
+// } from '@/services/ant-design-pro/tableData';
 import {
   ExclamationCircleOutlined,
   PlusOutlined,
@@ -29,12 +34,9 @@ import {
   getAllCategories,
   addCategory
 } from '@/services/ant-design-pro/categroy'
-import { getAllModels } from '@/services/ant-design-pro/layout';
-import { useModel, Link, useLocation } from 'umi';
+import { useLocation } from 'umi';
 
 import TreeList from './components/TreeList'
-
-const { confirm } = Modal;
 
 type DataSourceType = {
   id: React.Key;
@@ -47,6 +49,102 @@ type DataSourceType = {
   comment?: string;
   dict_values?: object[]
 };
+
+const TagList: React.FC<{
+  value?: {
+    name: string;
+    value: string;
+  }[];
+  onChange?: (
+    value: {
+      name: string;
+      value: string;
+    }[],
+  ) => void;
+}> = ({ value, onChange }) => {
+  const ref = useRef<InputRef | null>(null);
+  const [newTags, setNewTags] = useState<
+    {
+      name: string;
+      value: string;
+    }[]
+  >([]);
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleInputConfirm = () => {
+    let tempsTags = [...(value || [])];
+    if (inputValue && tempsTags.filter((tag) => tag.value === inputValue).length === 0) {
+      tempsTags = [...tempsTags, { name: `new-${tempsTags.length}`, value: inputValue }];
+    }
+    onChange?.(tempsTags);
+    setNewTags([]);
+    setInputValue('');
+  };
+
+  return (
+    <Space>
+      {(value || []).concat(newTags).map((item) => (
+        <Tag key={item.name}>{item.value}</Tag>
+      ))}
+      <Input
+        ref={ref}
+        type="text"
+        size="small"
+        style={{ width: 78 }}
+        value={inputValue}
+        onChange={handleInputChange}
+        onBlur={handleInputConfirm}
+        onPressEnter={handleInputConfirm}
+      />
+    </Space>
+  );
+};
+
+const TableTitle: React.FC<{
+  table_name: string;
+  table_id:number;
+  setTableName: any
+}> = ({ table_name,table_id, setTableName }) => {
+  console.log("table_name", table_name);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [value, setValue] = useState<string>(table_name)
+  const handleChange = (e: any) => {
+    setValue(e.target.value)
+    // setTableName(e.target.value)
+  }
+  return isEdit ? (
+    <div>
+      <Input
+        autoFocus={true}
+        value={value}
+        onChange={handleChange}
+        onPressEnter={async () => {
+          const result = await modifyIndicatorData(table_id,{
+            table_name:value
+          })
+          if(result) {
+            setTableName(value);
+            setIsEdit(false);
+          }
+        }}
+      />
+    </div>
+  ) : (
+    <div>
+      {`${table_name}`}
+      <Button
+        icon={<EditOutlined />}
+        type='ghost'
+        style={{ outline: 'none', border: 'none' }}
+        onClick={() => setIsEdit(true)}
+      />
+    </div>
+  )
+}
 
 
 export default function DiseaseIndexLibrary() {
@@ -61,6 +159,7 @@ export default function DiseaseIndexLibrary() {
   const [treeNodeList, setTreeNodeList] = useState<any>([]);
   const formRef = useRef<ProFormInstance<any>>();
   const [tableData, setTableData] = useState<any>({});
+  const [tableName, setTableName] = useState<string>("");
   const editorFormRef = useRef<EditableFormInstance<DataSourceType>>();
   const actionRef = useRef<any>();
 
@@ -101,7 +200,7 @@ export default function DiseaseIndexLibrary() {
     },
     {
       title: '不是null',
-      dataIndex: 'notNull',
+      dataIndex: 'not_null',
       valueType: 'radio',
       valueEnum: {
         1: {
@@ -115,6 +214,23 @@ export default function DiseaseIndexLibrary() {
     {
       title: '注释',
       dataIndex: 'comment',
+    },
+    {
+      title: '字典值',
+      dataIndex: 'dict_values',
+      width: '20%',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '此项为必填项',
+          },
+        ],
+      },
+      renderFormItem: (_, { isEditable }) => {
+        return isEditable ? <TagList /> : <Input />;
+      },
+      render: (_, row) => row?.dict_values?.map((item) => <Tag key={item.name}>{item.value}</Tag>),
     },
     {
       title: '操作',
@@ -147,29 +263,44 @@ export default function DiseaseIndexLibrary() {
 
   useEffect(() => {
     awaitAllCategories();//获取一个研究下的分类和对应模型种类
-  }, [])
+  }, [pathname])
   useEffect(() => {
     if (indicator) {
-      awaitGetIndicator();//获取当前页面上的指标模型
-      awaitAllIndicators();//获取所有其他的指标模型用于复制字段
+      Promise.all([
+        awaitGetIndicator(),//获取当前页面上的指标模型
+        awaitAllIndicators()//获取所有其他的指标模型用于复制字段
+      ])
+        .then((res) => {
+          // console.log(tableData.field_list);
+          formRef?.current?.setFieldsValue({
+            table: tableData.field_list
+          })
+        })
     }
   }, [indicator])
 
+  // const FormRequest = () => {
+  //   return {
+  //     data: tableData.field_list,
+  //     success: true,
+  //   }
+  // }
 
   const awaitAllCategories = async () => {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
-    console.log(result);
-
-    // const result = await getAllCategories({ study_id: 1 });
+    console.log("result", result);
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
+    console.log("TreeData", TreeData);
     setCategories(TreeData);
     setIndicator(findFirstSelectKey(TreeData));
 
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
+    console.log("table", result);
     setTableData(result);
+    setTableName(result.table_name)
   }
   const awaitAllIndicators = async () => {
     const result = await getAllIndicators();
@@ -233,58 +364,37 @@ export default function DiseaseIndexLibrary() {
   const addCategoryAtRoot = async () => {
     const newIndex = categories.length
     const result = await addCategory({
-      name: "新建节点",
-      parent_id: null,
+      name: "新建分类",
+      study_id: ~~pathname.split('/')[3]
     })
-    if (result) {
+    if (result.data) {
+      const { name, parent_id, id } = result.data
       setCategories([...categories, {
-        title: "新建节点",
+        title: name,
+        parent_id,
+        id,
         key: `.${newIndex}`,
-        parent_id: null,
       }])
     } else {
       message.error("添加分类失败，请重试")
     }
   }
 
-  const showPromiseConfirm =async () => {
-    // let inputValue = tableData.name;
-    // confirm({
-    //   title: '将该数据模型确认名称并上传',
-    //   icon: <ExclamationCircleOutlined />,
-    //   content: (
-    //     <Input
-    //       defaultValue={inputValue}
-    //       onChange={(e) => {
-    //         inputValue = e.target.value;
-    //       }}
-    //     />
-    //   ),
-    //   async onOk() {
-    //     const SubmitValues = {
-    //       id: tableData.id,
-    //       table_name: inputValue,
-    //       field_list: formRef.current?.getFieldsValue?.().table,
-    //     };
-    //     const res = await changeModelData(SubmitValues);
-    //     console.log("res", res);
-    //     if (res) {
-    //       message.success('修改数据模型成功!');
-    //       setTableData({
-    //         table_name: inputValue
-    //       })
-    //     }
-    //   },
-    //   onCancel() { },
-    // });
-    const SubmitValues = {
-      id: tableData.id,
-      // table_name: inputValue,
-      field_list: formRef.current?.getFieldsValue?.().table,
-    };
-    const res = await changeModelData(SubmitValues);
-    console.log("res", res);
-    if (res) {
+  const showPromiseConfirm = async () => {
+    const formValue = formRef.current?.getFieldsValue?.().table;
+    const result = await modifyTableData(tableData.id, {
+      field_list: formValue.map((item: any) => ({
+        comment: item.comment,
+        decimal_point: item.decimal_point,
+        length: ~~item.length,
+        not_null: ~~item.not_null,
+        name: item.name,
+        type: item.type,
+        dict_values: item.dict_values
+      }))
+    })
+    console.log("updateData", result);
+    if (result) {
       message.success('修改数据模型成功!');
     }
   };
@@ -310,18 +420,15 @@ export default function DiseaseIndexLibrary() {
           }
         </Col>
         <Col span={18}>
-          {tableData.field_list && <>
+          {indicator && tableData.field_list ? <>
             <ProForm<{
               table: DataSourceType[];
             }>
-              style={{
-                // paddingRight: 50
-              }}
               formRef={formRef}
-              initialValues={{
-                table: tableData.field_list,
-              }}
-              // params={{ pathname }}
+              // initialValues={{
+              //   table: tableData.field_list,
+              // }}
+              // params={{ pathname, indicator }}
               // request={FormRequest}
               validateTrigger="onBlur"
               submitter={{
@@ -345,8 +452,7 @@ export default function DiseaseIndexLibrary() {
                 controlled
                 actionRef={actionRef}
                 editableFormRef={editorFormRef}
-                headerTitle={`${tableData.name}/(${tableData.table_name})`}
-                value={tableData.field_list}
+                headerTitle={<TableTitle table_name={tableName} setTableName={setTableName} table_id={tableData.id}/>}
                 onChange={EditableTableChanged}
                 name="table"
                 recordCreatorProps={{
@@ -396,7 +502,7 @@ export default function DiseaseIndexLibrary() {
               treeNodeList={treeNodeList}
               getDataFromOtherModel={getDataFromOtherModel}
             />
-          </>}
+          </> : "loading..."}
         </Col>
       </Row>
     </div>

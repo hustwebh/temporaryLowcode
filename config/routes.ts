@@ -31,16 +31,16 @@ export default [
     path: '/:projectId',
     // layout:false,
     routes: [
-      {
-        path: '/:projectId/createNewResearch',
-        // layout:true,
-        component: './ModelPage/createNew',
-      },
-      {
-        path: '/:projectId/models/:modelId',
-        // layout:true,
-        component: './ModelPage/[modelId]',
-      },
+      // {
+      //   path: '/:projectId/createNewResearch',
+      //   // layout:true,
+      //   component: './ModelPage/createNew',
+      // },
+      // {
+      //   path: '/:projectId/models/:modelId',
+      //   // layout:true,
+      //   component: './ModelPage/[modelId]',
+      // },
       {
         path: '/:projectId/DiseaseIndexLibrary/:modelId',
         // layout:true,
