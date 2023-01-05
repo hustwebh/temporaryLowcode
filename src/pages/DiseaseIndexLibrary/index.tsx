@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Col, Row, Button, Input, message, Space, Tag } from 'antd';
-import type { InputRef } from 'antd';
+import { Link } from '@umijs/max';
 import {
   getIndicatorData,
   modifyIndicatorData,
   modifyTableData
 } from '@/services/ant-design-pro/tableData';
 import { modifyIndicator } from '@/services/ant-design-pro/categroy'
-import type { EditableFormInstance, ProColumns, ProFormInstance } from '@ant-design/pro-components';
+import type { EditableFormInstance, ProColumns, ProFormInstance, ProFormText } from '@ant-design/pro-components';
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
 import CopyModal from './components/copyModal';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,7 +21,8 @@ import {
   PlusOutlined,
   PlusCircleOutlined,
   EditOutlined,
-  MinusCircleOutlined
+  MinusCircleOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import {
   checkBoxCanSelect,
@@ -50,7 +51,7 @@ type DataSourceType = {
   dict_values?: object[]
 };
 
-const TagList: React.FC<{
+const DicValue: React.FC<{
   value?: {
     name: string;
     value: string;
@@ -61,46 +62,84 @@ const TagList: React.FC<{
       value: string;
     }[],
   ) => void;
-}> = ({ value, onChange }) => {
-  const ref = useRef<InputRef | null>(null);
-  const [newTags, setNewTags] = useState<
-    {
-      name: string;
-      value: string;
-    }[]
-  >([]);
-  const [inputValue, setInputValue] = useState<string>('');
+}> = ({ value = [], onChange }) => {
+  console.log("value:", value);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
+  const [values, setValues] = useState<{
+    name: string;
+    value: string;
+  }[]>(value)
+  const setValue = (target: any, type: string) => {
+    let copyValue = values;
+    const indexOfTarget = ~~target.id;
 
-  const handleInputConfirm = () => {
-    let tempsTags = [...(value || [])];
-    if (inputValue && tempsTags.filter((tag) => tag.value === inputValue).length === 0) {
-      tempsTags = [...tempsTags, { name: `new-${tempsTags.length}`, value: inputValue }];
+    if (type === "name") {
+      copyValue.splice(indexOfTarget, 1, {
+        name: target.value,
+        value: value[indexOfTarget].value
+      })
+    } else if (type === "value") {
+      copyValue.splice(indexOfTarget, 1, {
+        name: value[indexOfTarget].name,
+        value: target.value,
+      })
     }
-    onChange?.(tempsTags);
-    setNewTags([]);
-    setInputValue('');
-  };
+    setValues(copyValue)
+    onChange?.(copyValue)
+  }
+  const addNewDicValue = () => {
+    let newValues = [...(value || []), {
+      name: "",
+      value: ""
+    }];
+    setValues(newValues)
+    onChange?.(newValues)
+  }
 
+  const deleteDicValue = (target: any) => {
+    let copyValue = value;
+    copyValue.splice(target, 1);
+    setValues(copyValue)
+    onChange?.(copyValue)
+  }
   return (
-    <Space>
-      {(value || []).concat(newTags).map((item) => (
-        <Tag key={item.name}>{item.value}</Tag>
-      ))}
-      <Input
-        ref={ref}
-        type="text"
-        size="small"
-        style={{ width: 78 }}
-        value={inputValue}
-        onChange={handleInputChange}
-        onBlur={handleInputConfirm}
-        onPressEnter={handleInputConfirm}
-      />
-    </Space>
+    <div>
+      <Row>
+        <Col span={12}>选项名</Col>
+        <Col span={12}>选项值</Col>
+      </Row>
+      {values.map((item, index) => {
+        return (<Row style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          marginTop: 5
+        }}>
+          <Col span={8}>
+            <Input id={`${index}`} value={item.name} onChange={(e) => setValue(e.target, "name")} />
+          </Col>
+          <Col span={8}>
+            <Input id={`${index}`} value={item.value} onChange={(e) => setValue(e.target, "value")} />
+          </Col>
+          <Col span={3}>
+            <DeleteOutlined id={`${index}`} onClick={(e) => deleteDicValue(index)} />
+          </Col>
+        </Row>)
+      })}
+      {/* <ProForm<{
+        name: string;
+        value: string;
+      }[]>>
+        {value.map((item) => (
+          <ProForm.Group>
+            <ProFormText name="name" defaultValue={item.name} />
+            <ProFormText name="value" defaultValue={item.value} />
+          </ProForm.Group>
+        ))}
+      </ProForm> */}
+      <Row>
+        <Button type="link" icon={<PlusOutlined />} onClick={addNewDicValue}>新增一行</Button>
+      </Row>
+    </div>
   );
 };
 
@@ -224,11 +263,10 @@ export default function DiseaseIndexLibrary() {
       //     },
       //   ],
       // },
-      renderFormItem: () => {
-        return <TagList />;
-        // return <TagList />;
-      },
-      render: (_, row) => row?.dict_values?.map((item) => <Tag key={item.name}>{item.value}</Tag>),
+      renderFormItem: () => (<DicValue />),
+      render: (_, row) => row?.dict_values?.map((item) => {
+        return <Tag key={item.name}>{item.name}-{item.value}</Tag>
+      }),
     },
     {
       title: '操作',
@@ -262,7 +300,7 @@ export default function DiseaseIndexLibrary() {
     awaitAllCategories()
   }, [pathname])
   useEffect(() => {
-    console.log("indicator",indicator);
+    console.log("indicator", indicator);
     if (indicator) {
       awaitGetIndicator();//获取当前页面上的指标模型
       awaitAllIndicators();//获取所有其他的指标模型用于复制字段
@@ -315,11 +353,11 @@ export default function DiseaseIndexLibrary() {
     setAllIndicators(result);
   }
 
-  const EditableTableChanged = (value:any) => {
-    setTableData((prevState:any)=>{
+  const EditableTableChanged = (value: any) => {
+    setTableData((prevState: any) => {
       return {
         ...prevState,
-        field_list:value
+        field_list: value
       }
     })
   }
@@ -390,6 +428,9 @@ export default function DiseaseIndexLibrary() {
       message.success('修改数据模型成功!');
     }
   };
+  const expandedRowRender = () => {
+    return <Button>test</Button>
+  }
 
   return (
     <div style={{ height: "100%" }}>
@@ -438,7 +479,7 @@ export default function DiseaseIndexLibrary() {
                 }}
                 // loading={tableLoading}
                 controlled
-                // expandable={{ expandedRowRender }}
+                expandable={{ expandedRowRender }}
                 actionRef={actionRef}
                 editableFormRef={editorFormRef}
                 headerTitle={<TableTitle tableData={tableData} setTableName={setTableName} />}
@@ -462,6 +503,15 @@ export default function DiseaseIndexLibrary() {
                   //     删除该数据模型
                   //   </Button>
                   // </Popconfirm>,
+                  <Button
+                    // style={{ width: 130, height: 35 }}
+                    type='primary'
+                  >
+                    <Link to={`/${~~pathname.split('/')[1]}/Editor`} target="_blank">
+                      <EditOutlined />
+                      进入编辑
+                    </Link>
+                  </Button>,
                   <Button
                     key="rows"
                     onClick={() => {
