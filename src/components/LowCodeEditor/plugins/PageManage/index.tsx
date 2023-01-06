@@ -154,8 +154,8 @@ export default () => {
     const pageSchema = project.currentDocument?.exportSchema(TransformStage.Save)//切换前的Schema
     console.log(pageSchema);
     // 在线保存,
-    if (deepEquals(pageSchema, JSON.parse(localStorage.getItem("currentSchema") || ""))) {
-      console.log(123);
+    // if (deepEquals(pageSchema, JSON.parse(localStorage.getItem("currentSchema") || ""))) {
+      // console.log(123);
       savePage()
         .then(async () => {//确保在线保存成功后再切其他页面
           const newPageObj = findTargetInMenuData(pagesMenu, selectedKey);
@@ -181,7 +181,7 @@ export default () => {
           setCurrentPage(prevCurrentPage)
           message.error("页面保存失败，请重试")
         })
-    }
+    // }
   };
 
   return (
