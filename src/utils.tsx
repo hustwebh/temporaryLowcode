@@ -1,6 +1,3 @@
-import { EditOutlined } from '@ant-design/icons';
-import { Button, Tooltip } from 'antd';
-
 export function checkBoxCanSelect(item: any, indicatorsId: number | null): boolean {
   if (indicatorsId) {
     return item.id.toString() == indicatorsId.toString()
@@ -8,21 +5,97 @@ export function checkBoxCanSelect(item: any, indicatorsId: number | null): boole
   return false
 }
 
-export function pageMsgToMenu(flatDataArr: any[], parentId: number | null) {
-  let newArr: any[] = []
-  flatDataArr.forEach(item => {
-    if (item.parent_id === parentId) {
-      item.key = item.id.toString()
-      item.label = item.name
-      let child = pageMsgToMenu(flatDataArr, item.id)
-      if (child.length > 0) {
-        item.children = child
+/**
+ * 
+ * 
+ * 
+ * 以下函数用于辅助低代码编辑页面的多页面管理插件功能
+ * 
+ * 
+ */
+
+// /* 该函数作用是将后端返回不规则数据转化为antd的Menu组件能够正确显示*/
+// export function pageMsgToMenu(flatDataArr: any[], parentId: number | null) {
+//   let newArr: any[] = []
+//   flatDataArr.forEach(item => {
+//     if (item.parent_id === parentId) {
+//       item.key = item.id.toString()
+//       item.label = item.name
+//       let child = pageMsgToMenu(flatDataArr, item.id)
+//       if (child.length > 0) {
+//         item.children = child
+//       }
+//       newArr.push(item)
+//     }
+//   })
+//   return newArr;
+// }
+
+/* 该函数作用是将后端返回不规则数据转化为antd的Menu组件能够正确显示*/
+export function pageMsgToMenu(originalData: any) {
+  return originalData.map((item: any) => {
+    if (!item.children || !item.children.length) {
+      return {
+        ...item,
+        label: item.name,
+        key: item.id,
+        children: item.model_list.map((item: any) => ({
+          ...item,
+          label: item.name,
+          key: item.id,
+        }))
       }
-      newArr.push(item)
+    }
+    return {
+      ...item,
+      label: item.name,
+      key: item.id,
+      children: [...pageMsgToMenu(item.children), ...pageMsgToMenu(item.model_list)]
     }
   })
-  return newArr;
 }
+/* 该函数作用是在保存Schema时，寻找返回url连接的所属指标模型对象*/
+export function findTargetInMenuData(MenuData: any, currentId: string | null) {
+  let target = null;
+  let isGet = false;
+  function deepSearch(tree: any, id: string | null) {
+    for (let i = 0; i < tree.length; i++) {
+      if (tree[i].children && tree[i].children.length > 0) {
+        deepSearch(tree[i].children, id);
+      }
+      if (id === tree[i].id.toString() || isGet) {
+        isGet || (target = tree[i]);
+        isGet = true;
+        break;
+      }
+    }
+  }
+  deepSearch(MenuData, currentId);
+  return target;
+}
+
+/* 该函数作用是比较两个复杂对象是否相同，用于比较两个Schema对象*/
+export function deepEquals (x:any, y:any) {
+  // 先判断传入的是否为对象
+  if (Object.keys(x).length !== Object.keys(y).length) {
+    return false
+  }
+  let newX = Object.keys(x)
+  for (let p = 0; p < newX.length; p++) {
+    let p2 = newX[p]
+    let a = x[p2] instanceof Object
+    let b = y[p2] instanceof Object
+    if (a && b) {
+      if (!deepEquals(x[p2], y[p2])) {
+        return false
+      }
+    } else if (x[p2] !== y[p2]) {
+      return false
+    }
+  }
+  return true
+}
+
 
 export function getFirstNodeFromTree(TreeData: any): any {
   if (!TreeData[0].children) return TreeData[0];
@@ -47,37 +120,43 @@ export function fileToJson(file: any) {
   })
 }
 
-/** 自定义实现对Menu组件内容的自定义渲染*/
-export function _MenuItemRender(name: string, categoryId: number) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        // alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 8,
-      }}
-    >
-      <div>{name}</div>
-      <div>
-        <Tooltip title="编辑">
-          <Button
-            type="ghost"
-            style={{ border: "none" }}
-            icon={<EditOutlined style={{ color: "#1890ff" }} />}
-            onClick={() => { console.log(123) }} />
-        </Tooltip>
-        {/* <Tooltip title="删除">
-        <Button 
-        type="ghost"
-        style={{border:"none"}}
-        icon={<CloseOutlined style={{color:"red"}}/>} 
-        onClick={()=>{console.log(123)}}/>
-      </Tooltip> */}
-      </div>
-    </div>
-  )
-}
+// /** 自定义实现对Menu组件内容的自定义渲染*/
+// export function _MenuItemRender(name: string, categoryId: number) {
+//   return (
+//     <div
+//       style={{
+//         display: 'flex',
+//         // alignItems: 'center',
+//         justifyContent: 'space-between',
+//         gap: 8,
+//       }}
+//     >
+//       <div>{name}</div>
+//       <div>
+//         <Tooltip title="编辑">
+//           <Button
+//             type="ghost"
+//             style={{ border: "none" }}
+//             icon={<EditOutlined style={{ color: "#1890ff" }} />}
+//             onClick={() => { console.log(123) }} />
+//         </Tooltip>
+//         {/* <Tooltip title="删除">
+//         <Button 
+//         type="ghost"
+//         style={{border:"none"}}
+//         icon={<CloseOutlined style={{color:"red"}}/>} 
+//         onClick={()=>{console.log(123)}}/>
+//       </Tooltip> */}
+//       </div>
+//     </div>
+//   )
+// }
+
+
+/**
+ * 以下辅助函数功能都用于辅助生成研究页面的树形数据
+ */
+
 
 /* 专门处理树列表中的指标模型项，使其符合属性antd Tree组件的数据格式 */
 function indicatorsDataToTree(indicatorsData: any) {

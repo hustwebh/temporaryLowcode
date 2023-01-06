@@ -68,6 +68,7 @@ export async function modifyIndicatorData(indicator_id: number,data: {
   name?: string;//模型名称（中文名）
   study_id?: number;
   category_id?:number;
+  page_url?:string;
 }) {
   return request(`/api/v1/model/${indicator_id}`, {
     method: 'PUT',

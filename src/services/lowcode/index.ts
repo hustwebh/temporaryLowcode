@@ -3,8 +3,11 @@ import { material, project } from '@alilc/lowcode-engine';
 import { message } from 'antd';
 import { filterPackages } from '@alilc/lowcode-plugin-inject'
 import { TransformStage } from '@alilc/lowcode-types';
-import { schema } from '@alilc/lowcode-code-generator/types/utils';
-import testSchema from './testSchema.json'
+import schema from '@/assets/schema';
+import { PageSchema } from '@alilc/lowcode-types';
+import { v4 as uuidv4 } from 'uuid';
+
+let defaultPageSchema: PageSchema = schema
 
 const getLSName = (scenarioName: string, ns: string = 'projectSchema') => `${scenarioName}:${ns}`;
 
@@ -45,16 +48,6 @@ export const getPackagesFromLocalStorage = (scenarioName: string) => {
     return;
   }
   return JSON.parse(window.localStorage.getItem(getLSName(scenarioName, 'packages')) || '[]');
-}
-
-export const getPageSchema = async (scenarioName: string = 'index') => {
-  const pageSchema = getProjectSchemaFromLocalStorage(scenarioName).componentsTree?.[0]
-
-  if (pageSchema) {
-    return pageSchema;
-  }
-
-  return await request('./schema.json');
 }
 
 export const saveSchema = async (scenarioName: string = 'index') => {
@@ -104,8 +97,16 @@ export const resetSchema = async (scenarioName: string = 'index') => {
   message.success('成功重置页面');
 }
 
-export const getSchemaByFilepath = async (filepath: string) => {
-  return request(`${filepath}`, {
+export const createSchema = async (pageName:string) => {
+  //当文件路径为null的时候说明是新建的指标模型，直接使用默认Schema
+  return await UpdateSchema({
+    ...defaultPageSchema,
+    id: uuidv4(),
+    fileName: pageName
+  })
+}
+export const getSchema = async (schemaUrl: any) => {
+  return request(`${schemaUrl}`, {
     method: "GET",
     // responseType:'blob',
     headers: {
@@ -113,13 +114,13 @@ export const getSchemaByFilepath = async (filepath: string) => {
     },
   })
 }
-export const UpdateSchema = async (schemaString: string) => {
+export const UpdateSchema = async (schemaString: any) => {
   const blob = new Blob([JSON.stringify(schemaString)], {
     type: 'application/json;charset=UTF-8'
   })
   const schemaFile = new FormData();
   schemaFile.append('file', blob, 'schema.json');
-  console.log("schemaFile",schemaFile);
+  console.log("schemaFile", schemaFile);
   return request(`/api/cms/file`, {
     method: 'POST',
     headers: {

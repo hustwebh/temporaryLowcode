@@ -63,8 +63,6 @@ const DicValue: React.FC<{
     }[],
   ) => void;
 }> = ({ value = [], onChange }) => {
-  console.log("value:", value);
-
   const [values, setValues] = useState<{
     name: string;
     value: string;
@@ -205,6 +203,10 @@ export default function DiseaseIndexLibrary() {
       dataIndex: 'name',
     },
     {
+      title: '字段英文名',
+      dataIndex: 'field_name',
+    },
+    {
       title: '类型',
       dataIndex: 'type',
       valueType: 'select',
@@ -300,8 +302,8 @@ export default function DiseaseIndexLibrary() {
     awaitAllCategories()
   }, [pathname])
   useEffect(() => {
-    console.log("indicator", indicator);
     if (indicator) {
+      localStorage.setItem("indicator",indicator.toString())//便于低代码页面获取默认页面信息
       awaitGetIndicator();//获取当前页面上的指标模型
       awaitAllIndicators();//获取所有其他的指标模型用于复制字段
     }
@@ -416,6 +418,8 @@ export default function DiseaseIndexLibrary() {
     console.log("formValue", formValue);
     const result = await modifyTableData(tableData.id, {
       field_list: formValue.map((item: any) => ({
+        name:item.name,
+        field_name:item.field_name,
         comment: item.comment,
         decimal_point: item.decimal_point,
         length: ~~item.length,
@@ -479,7 +483,7 @@ export default function DiseaseIndexLibrary() {
                 }}
                 // loading={tableLoading}
                 controlled
-                expandable={{ expandedRowRender }}
+                // expandable={{ expandedRowRender }}
                 actionRef={actionRef}
                 editableFormRef={editorFormRef}
                 headerTitle={<TableTitle tableData={tableData} setTableName={setTableName} />}
