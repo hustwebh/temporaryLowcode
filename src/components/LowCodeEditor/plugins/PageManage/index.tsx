@@ -11,10 +11,7 @@ import {
 import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
 import { getSchemaByPageObj, getSchemaByUrl, createSchema, UpdateSchema } from '@/services/lowcode';
-import { pageMsgToMenu, findTargetInMenuData, deepEquals, getFirstNodeFromTree } from "@/utils"
-import { FileAddOutlined, ExportOutlined, ImportOutlined, DeleteTwoTone } from '@ant-design/icons'
-
-import schema from '@/assets/schema'
+import { pageMsgToMenu, findTargetInMenuData, deepEquals, getFirstNodeFromTree } from "@/utils";
 
 let { pathname } = location
 
@@ -31,15 +28,7 @@ export default () => {
   const awaitInitPagesMsg = async () => {
     //将页面信息和对应schema.json文件分开获取,首先获取页面信息
     const MenuData = pageMsgToMenu(await getAllCategories({ study_id: ~~pathname.split('/')[1] }))
-    // console.log("MenuData", MenuData);
     setPagesMenu(MenuData)
-    //由于信息分开获取,选择从进入的指标模型作为默认页面:
-    const defaultPage = findTargetInMenuData(MenuData, currentPage)
-    //接下来要设置获取对应Schema文件的逻辑
-    const pageSchema = await getSchemaByPageObj(defaultPage, currentPage)
-    project.currentDocument && project.removeDocument(project.currentDocument);
-    project.openDocument(pageSchema);
-    localStorage.setItem("currentSchema", JSON.stringify(pageSchema))
   }
 
   // /** 新建页面 */
@@ -109,11 +98,9 @@ export default () => {
       const copyData = [...pagesMenu].concat([]);
       const target = findTargetInMenuData(copyData, currentPage)
       if (target) {
-        console.log(res[0].url);
         target.page_url = res[0].url;
       }
       await modifyIndicatorData(target.id, { page_url: res[0].url })
-      console.log("copyData", copyData);
       setPagesMenu(copyData)
     }
   }

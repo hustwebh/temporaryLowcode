@@ -27,11 +27,16 @@ import {
   saveSchema,
   resetSchema,
   insertForm,
-  getProjectSchemaFromLocalStorage,
+  // getProjectSchemaFromLocalStorage,
 } from '@/services/lowcode';
+import { getSchemaByPageObj, getSchemaByUrl, createSchema, UpdateSchema } from '@/services/lowcode';
+import { pageMsgToMenu, findTargetInMenuData } from "@/utils";
+import { getAllCategories } from '@/services/ant-design-pro/categroy';
 
 import assets from '@/assets/assets';
 import schema from '@/assets/schema';
+
+const { pathname } = location;
 
 export default async function registerPlugins() {
   await plugins.register(Inject);
@@ -51,7 +56,15 @@ export default async function registerPlugins() {
         material.setAssets(await injectAssets(assets));
 
         // 加载 schema
-        project.openDocument(getProjectSchemaFromLocalStorage('antd').componentsTree?.[0] || schema);
+        const currentPage = localStorage.getItem("indicator")||"";
+        //选择从进入的指标模型作为默认页面:
+        const defaultPage = findTargetInMenuData(pageMsgToMenu(await getAllCategories({ study_id: ~~pathname.split('/')[1] })), currentPage)
+        //接下来要设置获取对应Schema文件的逻辑
+        const pageSchema = await getSchemaByPageObj(defaultPage, currentPage)
+        // project.currentDocument && project.removeDocument(project.currentDocument);
+        project.openDocument(pageSchema);
+        localStorage.setItem("currentSchema", JSON.stringify(pageSchema))
+        // project.openDocument(getProjectSchemaFromLocalStorage('antd').componentsTree?.[0] || schema);
       },
     };
   }
@@ -164,7 +177,7 @@ export default async function registerPlugins() {
             align: 'right',
           },
           content: (
-            <Button onClick={() => saveSchema('antd')}>
+            <Button onClick={() => saveSchema()}>
               保存
             </Button>
           ),
@@ -184,7 +197,7 @@ export default async function registerPlugins() {
         });
         hotkey.bind('command+s', (e) => {
           e.preventDefault();
-          saveSchema('antd')
+          saveSchema()
         });
       },
     };

@@ -4,8 +4,6 @@ import ReactRenderer from '@alilc/lowcode-react-renderer';
 import { injectComponents } from '@alilc/lowcode-plugin-inject';
 import { getProjectSchemaFromLocalStorage, getPackagesFromLocalStorage } from '@/services/lowcode';
 
-// import * as CodeGenerator from '@alilc/lowcode-code-generator/standalone-loader';
-
 export default () => {
   const [data, setData] = useState<{ schema: any, components: any }>();
 
@@ -34,19 +32,6 @@ export default () => {
     const assetLoader = new AssetLoader();
     await assetLoader.load(libraryAsset);
     const components = await injectComponents(buildComponents(libraryMap, componentsMap));
-
-    console.log("schema", schema);
-
-
-    // await CodeGenerator.init();
-
-    // const result = await CodeGenerator.generateCode({
-    //   solution: 'icejs', // 出码方案 (目前内置有 icejs 和 rax )
-    //   schema, // 编排搭建出来的 schema
-    // });
-    // console.log("出码方案:",result);
-
-
     setData({
       schema,
       components,
@@ -55,7 +40,6 @@ export default () => {
 
   useEffect(() => {
     init();
-
   }, []);
 
   return (data?.schema && (<ReactRenderer
