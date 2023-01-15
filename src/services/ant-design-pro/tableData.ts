@@ -57,6 +57,9 @@ export async function getIndicatorData(id: number | null) {
   return request(`/api/v1/model/${id}`, {
     method: 'GET',
     headers: {
+
+
+      
       "Content-Type": "application/json"
     },
   });

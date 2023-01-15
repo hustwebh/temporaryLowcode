@@ -55,7 +55,7 @@ export function pageMsgToMenu(originalData: any) {
   })
 }
 /* 该函数作用是在保存Schema时，寻找返回url连接的所属指标模型对象*/
-export function findTargetInMenuData(MenuData: any, currentId: string | null) {
+export function findTargetInMenuData(MenuData: any, currentId: string | null):any {
   let target = null;
   let isGet = false;
   function deepSearch(tree: any, id: string | null) {

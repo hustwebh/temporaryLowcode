@@ -1,5 +1,6 @@
 import type {
-  ILowCodePluginContext} from '@alilc/lowcode-engine';
+  ILowCodePluginContext
+} from '@alilc/lowcode-engine';
 import {
   plugins,
   project,
@@ -25,6 +26,7 @@ import PageManage from '@/components/LowCodeEditor/plugins/PageManage'
 import {
   saveSchema,
   resetSchema,
+  insertForm,
   getProjectSchemaFromLocalStorage,
 } from '@/services/lowcode';
 
@@ -43,8 +45,6 @@ export default async function registerPlugins() {
       name: 'editor-init',
       async init() {
         // 修改面包屑组件的分隔符属性setter
-        // const assets = await request('./assets.json');
-        // const schema = await request('./schema.json');
         // 设置物料描述
         const { material, project } = ctx;
 
@@ -165,7 +165,7 @@ export default async function registerPlugins() {
           },
           content: (
             <Button onClick={() => saveSchema('antd')}>
-              保存到本地
+              保存
             </Button>
           ),
         });
@@ -189,9 +189,38 @@ export default async function registerPlugins() {
       },
     };
   }
-  
   saveSample.pluginName = 'saveSample';
   await plugins.register(saveSample);
+
+  // 注册生成表单面板
+  const createForm = (ctx: ILowCodePluginContext) => {
+    return {
+      name: 'createForm',
+      async init() {
+        const { skeleton, hotkey } = ctx;
+
+        skeleton.add({
+          name: 'createForm',
+          area: 'topArea',
+          type: 'Widget',
+          props: {
+            align: 'right',
+          },
+          content: (
+            <Button onClick={() => insertForm('antd')}>
+              生成表单
+            </Button>
+          ),
+        });
+        // hotkey.bind('command+s', (e) => {
+        //   e.preventDefault();
+        //   saveSchema('antd')
+        // });
+      },
+    };
+  }
+  createForm.pluginName = 'createForm';
+  await plugins.register(createForm);
 
   DataSourcePanePlugin.pluginName = 'DataSourcePane';
   await plugins.register(DataSourcePanePlugin);
@@ -202,6 +231,7 @@ export default async function registerPlugins() {
   CodeGenPlugin.pluginName = 'CodeGenPlugin'
   await plugins.register(CodeGenPlugin);
 
+  // 设置自定义 setter 和事件绑定、插件绑定面板
   const customSetter = (ctx: ILowCodePluginContext) => {
     return {
       name: '___registerCustomSetter___',
@@ -211,7 +241,7 @@ export default async function registerPlugins() {
         setters.registerSetter('TitleSetter', TitleSetter);
         setters.registerSetter('BehaviorSetter', BehaviorSetter);
         setters.registerSetter('CustomSetter', CustomSetter);
-        setters.registerSetter('TestSetter',TestSetter)
+        setters.registerSetter('TestSetter', TestSetter)
       },
     };
   }

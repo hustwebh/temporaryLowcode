@@ -6,6 +6,7 @@ import { TransformStage } from '@alilc/lowcode-types';
 import schema from '@/assets/schema';
 import { PageSchema } from '@alilc/lowcode-types';
 import { v4 as uuidv4 } from 'uuid';
+import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 
 let defaultPageSchema: PageSchema = schema
 
@@ -19,16 +20,16 @@ export const getProjectSchemaFromLocalStorage = (scenarioName: string) => {
   return JSON.parse(window.localStorage.getItem(getLSName(scenarioName)) || '{}');
 }
 
-const setProjectSchemaToLocalStorage = (scenarioName: string) => {
-  if (!scenarioName) {
-    console.error('scenarioName is required!');
-    return;
-  }
-  window.localStorage.setItem(
-    getLSName(scenarioName),
-    JSON.stringify(project.exportSchema(TransformStage.Save))
-  );
-}
+// const setProjectSchemaToLocalStorage = (scenarioName: string) => {
+//   if (!scenarioName) {
+//     console.error('scenarioName is required!');
+//     return;
+//   }
+//   window.localStorage.setItem(
+//     getLSName(scenarioName),
+//     JSON.stringify(project.exportSchema(TransformStage.Save))
+//   );
+// }
 
 const setPackgesToLocalStorage = async (scenarioName: string) => {
   if (!scenarioName) {
@@ -50,23 +51,31 @@ export const getPackagesFromLocalStorage = (scenarioName: string) => {
   return JSON.parse(window.localStorage.getItem(getLSName(scenarioName, 'packages')) || '[]');
 }
 
-export const saveSchema = async (scenarioName: string = 'index') => {
-  setProjectSchemaToLocalStorage(scenarioName);
+export const getSchemaByPageObj = async (defaultPage: any, currentPage: string) => {  
+  const { page_url, table_name } = defaultPage;
+  let pageSchema;
 
-  await setPackgesToLocalStorage(scenarioName);
-  // window.localStorage.setItem(
-  //   'projectSchema',
-  //   JSON.stringify(project.exportSchema(TransformStage.Save))
-  // );
-  // const packages = await filterPackages(material.getAssets().packages);
-  // window.localStorage.setItem(
-  //   'packages',
-  //   JSON.stringify(packages)
-  // );
-  message.success('成功保存到本地');
+  if (!page_url) {
+    //页面page_url为null,此时需要先生成一个默认的Schema来填充低代码工作区
+    const pageSchemaLink = await createSchema(table_name)
+    //调用接口让后台存储指标模型的page_url属性发生更新
+    await modifyIndicatorData(~~currentPage, { page_url: pageSchemaLink[0].url })
+    pageSchema = await getSchemaByUrl(pageSchemaLink[0].url)
+  }
+  else pageSchema = await getSchemaByUrl(page_url)
+  return pageSchema
+}
+
+export const saveSchema = async () => {
+  const currentSchema = project.currentDocument?.exportSchema();
+  localStorage.setItem("currentSchema", JSON.stringify(currentSchema));
+  const currentPage = localStorage.getItem("indicator") || "";
+  const result = await UpdateSchema(currentSchema)
+  await modifyIndicatorData(~~currentPage, { page_url: result[0].url })
+  message.success('成功保存');
 };
 
-export const resetSchema = async (scenarioName: string = 'index') => {
+export const resetSchema = async (scenarioName: string = 'antd') => {
   try {
     await new Promise<void>((resolve, reject) => {
       Dialog.confirm({
@@ -97,7 +106,54 @@ export const resetSchema = async (scenarioName: string = 'index') => {
   message.success('成功重置页面');
 }
 
-export const createSchema = async (pageName:string) => {
+export const insertForm = async (scenarioName: string = 'antd') => {
+  const formObj = {
+    "componentName": "Form",
+    "id": uuidv4(),
+    "props": {
+      "wrapperCol": {
+        "span": 14
+      },
+      "onValuesChange": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "onFinish": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "onFinishFailed": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "name": "basic",
+      "ref": "form_2b1h",
+      "colon": true,
+      "hideRequiredMark": false,
+      "labelAlign": "right",
+      "layout": "horizontal",
+      "preserve": true,
+      "scrollToFirstError": true,
+      "size": "middle",
+      "validateMessages": {
+        "required": "'${name}' 不能为空"
+      }
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }
+  let currentPageSchema = project.currentDocument?.exportSchema();
+  currentPageSchema?.children?.push(formObj);
+  project.currentDocument && project.removeDocument(project.currentDocument);
+  project.openDocument(currentPageSchema)
+  // project.currentDocument?.importSchema(currentPageSchema) 
+  console.log("currentPageSchema", currentPageSchema);
+}
+
+export const createSchema = async (pageName: string) => {
   //当文件路径为null的时候说明是新建的指标模型，直接使用默认Schema
   return await UpdateSchema({
     ...defaultPageSchema,
@@ -105,7 +161,8 @@ export const createSchema = async (pageName:string) => {
     fileName: pageName
   })
 }
-export const getSchema = async (schemaUrl: any) => {
+
+export const getSchemaByUrl = async (schemaUrl: any) => {
   return request(`${schemaUrl}`, {
     method: "GET",
     // responseType:'blob',
@@ -114,13 +171,13 @@ export const getSchema = async (schemaUrl: any) => {
     },
   })
 }
+
 export const UpdateSchema = async (schemaString: any) => {
   const blob = new Blob([JSON.stringify(schemaString)], {
     type: 'application/json;charset=UTF-8'
   })
   const schemaFile = new FormData();
   schemaFile.append('file', blob, 'schema.json');
-  console.log("schemaFile", schemaFile);
   return request(`/api/cms/file`, {
     method: 'POST',
     headers: {

@@ -170,7 +170,7 @@ const TableTitle: React.FC<{
     </div>
   ) : (
     <div>
-      {`${tableData.table_name}`}
+      {`${value}`}
       <Button
         icon={<EditOutlined />}
         type='ghost'
