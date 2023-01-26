@@ -6,7 +6,8 @@ import { TransformStage } from '@alilc/lowcode-types';
 import schema from '@/assets/schema';
 import { PageSchema } from '@alilc/lowcode-types';
 import { v4 as uuidv4 } from 'uuid';
-import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
+import { modifyIndicatorData,getIndicatorData } from '@/services/ant-design-pro/tableData';
+import {createFormSchemaByData} from '@/utils'
 
 let defaultPageSchema: PageSchema = schema
 
@@ -31,16 +32,9 @@ export const getProjectSchemaFromLocalStorage = (scenarioName: string) => {
 //   );
 // }
 
-const setPackgesToLocalStorage = async (scenarioName: string) => {
-  if (!scenarioName) {
-    console.error('scenarioName is required!');
-    return;
-  }
+const setPackgesToLocalStorage = async () => {
   const packages = await filterPackages(material.getAssets().packages);
-  window.localStorage.setItem(
-    getLSName(scenarioName, 'packages'),
-    JSON.stringify(packages),
-  );
+  localStorage.setItem('packages',JSON.stringify(packages));
 }
 
 export const getPackagesFromLocalStorage = (scenarioName: string) => {
@@ -106,50 +100,13 @@ export const resetSchema = async (scenarioName: string = 'antd') => {
   message.success('成功重置页面');
 }
 
-export const insertForm = async (scenarioName: string = 'antd') => {
-  const formObj = {
-    "componentName": "Form",
-    "id": uuidv4(),
-    "props": {
-      "wrapperCol": {
-        "span": 14
-      },
-      "onValuesChange": {
-        "type": "JSExpression",
-        "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-      },
-      "onFinish": {
-        "type": "JSExpression",
-        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-      },
-      "onFinishFailed": {
-        "type": "JSExpression",
-        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-      },
-      "name": "basic",
-      "ref": "form_2b1h",
-      "colon": true,
-      "hideRequiredMark": false,
-      "labelAlign": "right",
-      "layout": "horizontal",
-      "preserve": true,
-      "scrollToFirstError": true,
-      "size": "middle",
-      "validateMessages": {
-        "required": "'${name}' 不能为空"
-      }
-    },
-    "hidden": false,
-    "title": "",
-    "isLocked": false,
-    "condition": true,
-    "conditionGroup": ""
-  }
+export const insertForm = async () => {
+  const data = await getIndicatorData(~~(localStorage.getItem("indicator")||""))
+  const targetForm = createFormSchemaByData(data);
   let currentPageSchema = project.currentDocument?.exportSchema();
-  currentPageSchema?.children?.push(formObj);
+  currentPageSchema?.children?.push(targetForm);
   project.currentDocument && project.removeDocument(project.currentDocument);
   project.openDocument(currentPageSchema)
-  // project.currentDocument?.importSchema(currentPageSchema) 
   console.log("currentPageSchema", currentPageSchema);
 }
 

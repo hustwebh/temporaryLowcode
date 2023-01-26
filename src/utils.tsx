@@ -1,8 +1,124 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export function checkBoxCanSelect(item: any, indicatorsId: number | null): boolean {
   if (indicatorsId) {
     return item.id.toString() == indicatorsId.toString()
   }
   return false
+}
+
+export function createFormSchemaByData(data: any) {
+  const { field_list } = data;
+  const formSchema = createFormSchema();
+  const formChildren = field_list.map((item: any) => {
+    const { name, field_name, dict_values } = item;
+    const formItemSchema = createFormItemSchema({ name, field_name });
+    formItemSchema['children'] = createCheckGroupSchema({ dict_values })
+  })
+  formSchema['children'] = formChildren;
+  return formSchema;
+}
+function createFormSchema() {
+  return {
+    "componentName": "Form",
+    "id": uuidv4(),
+    "props": {
+      "wrapperCol": {
+        "span": 14
+      },
+      "onValuesChange": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "onFinish": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "onFinishFailed": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "name": "basic",
+      "ref": "form_2b1h",
+      "colon": true,
+      "hideRequiredMark": false,
+      "labelAlign": "right",
+      "layout": "horizontal",
+      "preserve": true,
+      "scrollToFirstError": true,
+      "size": "middle",
+      "validateMessages": {
+        "required": "'${name}' 不能为空"
+      }
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }
+}
+function createFormItemSchema({ name, field_name }: {
+  name: string;
+  field_name: string
+}) {
+  return {
+    "componentName": "Form.Item",
+    "id": uuidv4(),
+    "props": {
+      "label": name || "表单项",
+      "labelAlign": "right",
+      "colon": true,
+      "required": false,
+      "noStyle": false,
+      "valuePropName": "value",
+      "requiredobj": {
+        "required": null,
+        "message": null
+      },
+      "typeobj": {
+        "type": null,
+        "message": null
+      },
+      "lenobj": {
+        "max": null,
+        "min": null,
+        "message": null
+      },
+      "patternobj": {
+        "pattern": null,
+        "message": null
+      },
+      "name": field_name || ""
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": "",
+  };
+}
+function createCheckGroupSchema({ dict_values }: {
+  dict_values: any[]
+}) {
+  const options = dict_values.map((_) => ({
+    lable: _.name,
+    value: _.value
+  }))
+  return {
+    "componentName": "antdRadioGroup",
+    "id": uuidv4(),
+    "props": {
+      "options": options || [],
+      "disabled": false,
+      "optionType": "default"
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  };
 }
 
 /**
@@ -55,7 +171,7 @@ export function pageMsgToMenu(originalData: any) {
   })
 }
 /* 该函数作用是在保存Schema时，寻找返回url连接的所属指标模型对象*/
-export function findTargetInMenuData(MenuData: any, currentId: string | null):any {
+export function findTargetInMenuData(MenuData: any, currentId: string | null): any {
   let target = null;
   let isGet = false;
   function deepSearch(tree: any, id: string | null) {
@@ -75,7 +191,7 @@ export function findTargetInMenuData(MenuData: any, currentId: string | null):an
 }
 
 /* 该函数作用是比较两个复杂对象是否相同，用于比较两个Schema对象*/
-export function deepEquals (x:any, y:any) {
+export function deepEquals(x: any, y: any) {
   // 先判断传入的是否为对象
   if (Object.keys(x).length !== Object.keys(y).length) {
     return false

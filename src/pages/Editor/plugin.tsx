@@ -205,13 +205,39 @@ export default async function registerPlugins() {
   saveSample.pluginName = 'saveSample';
   await plugins.register(saveSample);
 
+  // 注册预览
+  const preview = (ctx: ILowCodePluginContext) => {
+    return {
+      name: 'preview',
+      async init() {
+        const { skeleton } = ctx;
+
+        skeleton.add({
+          name: 'preview',
+          area: 'topArea',
+          type: 'Widget',
+          props: {
+            align: 'right',
+          },
+          content: (
+            <Button onClick={() => console.log(123)}>
+              预览
+            </Button>
+          ),
+        });
+      },
+    };
+  }
+  preview.pluginName = 'preview';
+  await plugins.register(preview);
+
   // 注册生成表单面板
   const createForm = (ctx: ILowCodePluginContext) => {
     return {
       name: 'createForm',
       async init() {
         const { skeleton, hotkey } = ctx;
-
+        
         skeleton.add({
           name: 'createForm',
           area: 'topArea',
@@ -220,7 +246,7 @@ export default async function registerPlugins() {
             align: 'right',
           },
           content: (
-            <Button onClick={() => insertForm('antd')}>
+            <Button onClick={() => insertForm()}>
               生成表单
             </Button>
           ),
