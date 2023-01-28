@@ -15,10 +15,9 @@ import { getTargetNodeByKey } from '@/utils';
 import styles from './index.less';
 const { DirectoryTree, TreeNode } = Tree;
 
-const TreeList = ({ TreeData, defaultIndicatorId, setIndicator }: { TreeData: any, defaultIndicatorId: any, setIndicator: any }) => {
+const TreeList = ({ TreeData, defaultKey, setIndicator }: { TreeData: any, defaultKey: string, setIndicator: any }) => {
   const [treeData, setTreeData] = useState<any>(TreeData || []);
   const [rightClickNodeTreeItem, setRightClickNodeTreeItem] = useState<any>(null)
-  // console.log("defaultIndicatorId", defaultIndicatorId);
   useEffect(() => {
     setTreeData(TreeData)
   }, [TreeData])
@@ -90,6 +89,7 @@ const TreeList = ({ TreeData, defaultIndicatorId, setIndicator }: { TreeData: an
         selectable={true}
         onSelect={onSelect}
         onRightClick={RightClickTreeNode}
+        selectedKeys={[defaultKey]}
       // defaultSelectedKeys={[getDefaultSelectKey(defaultIndicatorId)]}
       >
         {TreeNodeRender(treeData)}

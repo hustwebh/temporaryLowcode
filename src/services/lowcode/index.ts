@@ -6,8 +6,8 @@ import { TransformStage } from '@alilc/lowcode-types';
 import schema from '@/assets/schema';
 import { PageSchema } from '@alilc/lowcode-types';
 import { v4 as uuidv4 } from 'uuid';
-import { modifyIndicatorData,getIndicatorData } from '@/services/ant-design-pro/tableData';
-import {createFormSchemaByData} from '@/utils'
+import { modifyIndicatorData, getIndicatorData } from '@/services/ant-design-pro/tableData';
+import { createFormSchemaByData } from '@/utils'
 
 let defaultPageSchema: PageSchema = schema
 
@@ -34,7 +34,7 @@ export const getProjectSchemaFromLocalStorage = (scenarioName: string) => {
 
 const setPackgesToLocalStorage = async () => {
   const packages = await filterPackages(material.getAssets().packages);
-  localStorage.setItem('packages',JSON.stringify(packages));
+  localStorage.setItem('packages', JSON.stringify(packages));
 }
 
 export const getPackagesFromLocalStorage = (scenarioName: string) => {
@@ -45,7 +45,7 @@ export const getPackagesFromLocalStorage = (scenarioName: string) => {
   return JSON.parse(window.localStorage.getItem(getLSName(scenarioName, 'packages')) || '[]');
 }
 
-export const getSchemaByPageObj = async (defaultPage: any, currentPage: string) => {  
+export const getSchemaByPageObj = async (defaultPage: any, currentPage: string) => {
   const { page_url, table_name } = defaultPage;
   let pageSchema;
 
@@ -101,13 +101,13 @@ export const resetSchema = async (scenarioName: string = 'antd') => {
 }
 
 export const insertForm = async () => {
-  const data = await getIndicatorData(~~(localStorage.getItem("indicator")||""))
+  const data = await getIndicatorData(~~(localStorage.getItem("indicator") || ""))
   const targetForm = createFormSchemaByData(data);
   let currentPageSchema = project.currentDocument?.exportSchema();
-  if(currentPageSchema?.children) {
+  if (currentPageSchema?.children) {
     currentPageSchema.children.push(targetForm)
-  }else {
-    currentPageSchema.children =targetForm
+  } else {
+    currentPageSchema.children = targetForm
   }
   project.currentDocument && project.removeDocument(project.currentDocument);
   project.openDocument(currentPageSchema)

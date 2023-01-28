@@ -22,44 +22,44 @@ export function createFormSchemaByData(data: any) {
 function createFormSchema() {
   return {
     "componentName": "Form",
-      "id": uuidv4(),
-      "props": {
-        "labelCol": {
-          "span": 6
-        },
-        "wrapperCol": {
-          "span": 14
-        },
-        "onValuesChange": {
-          "type": "JSExpression",
-          "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-        },
-        "onFinish": {
-          "type": "JSExpression",
-          "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-        },
-        "onFinishFailed": {
-          "type": "JSExpression",
-          "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-        },
-        "name": "basic",
-        "ref": "form_fqup",
-        "colon": true,
-        "hideRequiredMark": false,
-        "labelAlign": "right",
-        "layout": "horizontal",
-        "preserve": true,
-        "scrollToFirstError": true,
-        "size": "middle",
-        "validateMessages": {
-          "required": "'${name}' 不能为空"
-        }
+    "id": uuidv4(),
+    "props": {
+      "labelCol": {
+        "span": 6
       },
-      "hidden": false,
-      "title": "",
-      "isLocked": false,
-      "condition": true,
-      "conditionGroup": ""
+      "wrapperCol": {
+        "span": 14
+      },
+      "onValuesChange": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "onFinish": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "onFinishFailed": {
+        "type": "JSExpression",
+        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+      },
+      "name": "basic",
+      "ref": "form_fqup",
+      "colon": true,
+      "hideRequiredMark": false,
+      "labelAlign": "right",
+      "layout": "horizontal",
+      "preserve": true,
+      "scrollToFirstError": true,
+      "size": "middle",
+      "validateMessages": {
+        "required": "'${name}' 不能为空"
+      }
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
   }
 }
 
@@ -350,11 +350,11 @@ export function TreeDataWithoutKeyToTreeData(treeDataWithoutKey: any, key: strin
   })
 }
 
-/* 寻找Tree组件的初始选中项 */
-export function findFirstSelectKey(TreeData: any) {
+/* 寻找Tree组件的初始选中项节点 */
+export function findFirstSelectNode(TreeData: any) {
   for (let i = 0; i < TreeData.length; i++) {
     if (TreeData[i].children.length > 1) {
-      return TreeData[i].children[1].id;
+      return TreeData[i].children[0];
     }
     if (TreeData[i].children && !TreeData[i].isLeaf) {
       continue;

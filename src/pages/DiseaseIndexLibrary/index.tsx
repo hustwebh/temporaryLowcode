@@ -28,7 +28,7 @@ import {
   checkBoxCanSelect,
   categoriesAndIndicatorsDataToTreeWithoutKey,
   TreeDataWithoutKeyToTreeData,
-  findFirstSelectKey
+  findFirstSelectNode
 } from '@/utils'
 import { getAllIndicators } from '@/services/ant-design-pro/layout';
 import {
@@ -185,7 +185,8 @@ const TableTitle: React.FC<{
 export default function DiseaseIndexLibrary() {
   const { pathname } = useLocation();
   const [categories, setCategories] = useState<any>([])//获取分类和相关指标模型的原始数据
-  const [indicator, setIndicator] = useState<number | null>(null)//获取初始状态下的指标模型
+  const [indicator, setIndicator] = useState<number | null>(null)//获取初始状态下的指标模型id属性
+  const [defaultKey,setDefaultKey] = useState<string | null>("")//获取初始状态下的指标模型key属性用作Tree初始选中高亮
 
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
   const [modalView, setModalView] = useState(false);
@@ -303,7 +304,7 @@ export default function DiseaseIndexLibrary() {
   }, [pathname])
   useEffect(() => {
     if (indicator) {
-      localStorage.setItem("indicator",indicator.toString())//便于低代码页面获取默认页面信息
+      localStorage.setItem("indicator", indicator.toString())//便于低代码页面获取默认页面信息
       awaitGetIndicator();//获取当前页面上的指标模型
       awaitAllIndicators();//获取所有其他的指标模型用于复制字段
     }
@@ -321,8 +322,10 @@ export default function DiseaseIndexLibrary() {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
+    const { id,key } = findFirstSelectNode(TreeData)
     setCategories(TreeData);
-    setIndicator(findFirstSelectKey(TreeData));
+    setIndicator(id);
+    setDefaultKey(key)
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
@@ -418,8 +421,8 @@ export default function DiseaseIndexLibrary() {
     console.log("formValue", formValue);
     const result = await modifyTableData(tableData.id, {
       field_list: formValue.map((item: any) => ({
-        name:item.name,
-        field_name:item.field_name,
+        name: item.name,
+        field_name: item.field_name,
         comment: item.comment,
         decimal_point: item.decimal_point,
         length: ~~item.length,
@@ -432,9 +435,6 @@ export default function DiseaseIndexLibrary() {
       message.success('修改数据模型成功!');
     }
   };
-  const expandedRowRender = () => {
-    return <Button>test</Button>
-  }
 
   return (
     <div style={{ height: "100%" }}>
@@ -449,7 +449,7 @@ export default function DiseaseIndexLibrary() {
               ? (
                 <TreeList
                   TreeData={categories}
-                  defaultIndicatorId={indicator}
+                  defaultKey={defaultKey}
                   setIndicator={setIndicator}
                 />
               )
