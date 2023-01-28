@@ -9,55 +9,60 @@ export function checkBoxCanSelect(item: any, indicatorsId: number | null): boole
 
 export function createFormSchemaByData(data: any) {
   const { field_list } = data;
-  const formSchema = createFormSchema();
-  const formChildren = field_list.map((item: any) => {
+  let formSchema = createFormSchema();
+  let formChildren = field_list.map((item: any) => {
     const { name, field_name, dict_values } = item;
-    const formItemSchema = createFormItemSchema({ name, field_name });
-    formItemSchema['children'] = createCheckGroupSchema({ dict_values })
+    let formItemSchema = createFormItemSchema({ name, field_name });
+    formItemSchema.children = createRadioGroupSchema({ dict_values });
+    return formItemSchema;
   })
-  formSchema['children'] = formChildren;
+  formSchema.children = formChildren;
   return formSchema;
 }
 function createFormSchema() {
   return {
     "componentName": "Form",
-    "id": uuidv4(),
-    "props": {
-      "wrapperCol": {
-        "span": 14
+      "id": uuidv4(),
+      "props": {
+        "labelCol": {
+          "span": 6
+        },
+        "wrapperCol": {
+          "span": 14
+        },
+        "onValuesChange": {
+          "type": "JSExpression",
+          "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+        },
+        "onFinish": {
+          "type": "JSExpression",
+          "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+        },
+        "onFinishFailed": {
+          "type": "JSExpression",
+          "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
+        },
+        "name": "basic",
+        "ref": "form_fqup",
+        "colon": true,
+        "hideRequiredMark": false,
+        "labelAlign": "right",
+        "layout": "horizontal",
+        "preserve": true,
+        "scrollToFirstError": true,
+        "size": "middle",
+        "validateMessages": {
+          "required": "'${name}' 不能为空"
+        }
       },
-      "onValuesChange": {
-        "type": "JSExpression",
-        "value": "function() {\n      const self = this;\n      try {\n        return (function onValuesChange(changedValues, allValues) {\n  console.log('onValuesChange', changedValues, allValues);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-      },
-      "onFinish": {
-        "type": "JSExpression",
-        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinish(values) {\n  console.log('onFinish', values);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-      },
-      "onFinishFailed": {
-        "type": "JSExpression",
-        "value": "function() {\n      const self = this;\n      try {\n        return (function onFinishFailed({ values, errorFields, outOfDate }) {\n  console.log('onFinishFailed', values, errorFields, outOfDate);\n}).apply(self, arguments);\n      } catch(e) {\n        console.log('call function which parsed by lowcode failed: ', e);\n        return e.message;\n      }\n    }"
-      },
-      "name": "basic",
-      "ref": "form_2b1h",
-      "colon": true,
-      "hideRequiredMark": false,
-      "labelAlign": "right",
-      "layout": "horizontal",
-      "preserve": true,
-      "scrollToFirstError": true,
-      "size": "middle",
-      "validateMessages": {
-        "required": "'${name}' 不能为空"
-      }
-    },
-    "hidden": false,
-    "title": "",
-    "isLocked": false,
-    "condition": true,
-    "conditionGroup": ""
+      "hidden": false,
+      "title": "",
+      "isLocked": false,
+      "condition": true,
+      "conditionGroup": ""
   }
 }
+
 function createFormItemSchema({ name, field_name }: {
   name: string;
   field_name: string
@@ -98,11 +103,11 @@ function createFormItemSchema({ name, field_name }: {
     "conditionGroup": "",
   };
 }
-function createCheckGroupSchema({ dict_values }: {
+function createRadioGroupSchema({ dict_values }: {
   dict_values: any[]
 }) {
   const options = dict_values.map((_) => ({
-    lable: _.name,
+    label: _.name,
     value: _.value
   }))
   return {
@@ -119,6 +124,30 @@ function createCheckGroupSchema({ dict_values }: {
     "condition": true,
     "conditionGroup": ""
   };
+}
+
+function createCheckGroupSchema({ dict_values }: {
+  dict_values: any[]
+}) {
+  const options = dict_values.map((_) => ({
+    label: _.name,
+    value: _.value
+  }))
+  return {
+    "componentName": "antdCheckboxGroup",
+    "id": uuidv4(),
+    "props": {
+      "options": options || "",
+      "name": "",
+      "defaultValue": [],
+      "disabled": false
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }
 }
 
 /**

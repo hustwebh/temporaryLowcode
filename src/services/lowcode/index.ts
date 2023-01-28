@@ -104,10 +104,13 @@ export const insertForm = async () => {
   const data = await getIndicatorData(~~(localStorage.getItem("indicator")||""))
   const targetForm = createFormSchemaByData(data);
   let currentPageSchema = project.currentDocument?.exportSchema();
-  currentPageSchema?.children?.push(targetForm);
+  if(currentPageSchema?.children) {
+    currentPageSchema.children.push(targetForm)
+  }else {
+    currentPageSchema.children =targetForm
+  }
   project.currentDocument && project.removeDocument(project.currentDocument);
   project.openDocument(currentPageSchema)
-  console.log("currentPageSchema", currentPageSchema);
 }
 
 export const createSchema = async (pageName: string) => {
