@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Modal } from 'antd';
+import { Button, Modal, Radio, Checkbox, Cascader, Space } from 'antd';
 import { Card, Col, Row } from 'antd';
 
 import { getIndicatorData } from '@/services/ant-design-pro/tableData';
@@ -26,7 +26,14 @@ export default function TestSetter(props: any) {
       };
     })
     setDicValues(dicDesc)
-    console.log("DicValues",dicDesc);
+    console.log("DicValues", dicDesc);
+    if (!value) {
+      onChange([
+        { label: "A", value: "A" },
+        { label: "B", value: "B" },
+        { label: "C", value: "C" }
+      ])
+    }
   }
 
   const showModal = () => {
@@ -36,20 +43,17 @@ export default function TestSetter(props: any) {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const onOk = () => {
-    setIsModalOpen(false)
-  }
 
-  const selectOptions = ({ dict_values, name, field_name }: {
+  const selectOptions = async ({ dict_values, name, field_name }: {
     dict_values: any[], name: string, field_name: string
   }) => {
-    const parentNode = project.currentDocument.selection.node.parent
-    onOk();
+    onChange(dict_values)
+    const parentNode = project.currentDocument && project.currentDocument.selection.node.parent
     if (parentNode?.propsData) {
       parentNode.setPropValue("label", name)
       parentNode.setPropValue("name", field_name)
     }
-    onChange(dict_values)
+    setIsModalOpen(false)
   }
 
   return (
@@ -57,25 +61,34 @@ export default function TestSetter(props: any) {
       <Button type="primary" onClick={showModal}>
         选择匹配指标
       </Button>
-      <Modal title="选择匹配指标" open={isModalOpen} onOk={onOk} onCancel={handleCancel}>
+      <Modal
+        title="选择匹配指标"
+        open={isModalOpen}
+        onCancel={handleCancel}
+        footer={null}
+        style={{ height: 500, overflowY: 'scroll' }}
+      >
         <Row gutter={16}>
-          {dicValues && dicValues.map((item: any) => {
-            return (<Col span={12}>
-              <Card title={`${item.name}/${item.field_name}`} hoverable onClick={
-                // () => {
-                //   onOk()
-                //   onChange(item)
-                // }
-                () => selectOptions(item)
-              }>
-                {item.dict_values.map((_:any) => {
-                  return `label:${_.name},value:${_.value}\n`
-                })}
+          {dicValues && dicValues.map((item: any) => (
+            <Col style={{ marginBottom: 10, width: '100%' }} onClick={() => selectOptions(item)}>
+              <Card hoverable>
+                <Space>
+                  {`${item.name}:`}
+                  <Radio.Group options={item.dict_values} value={null} />/
+                  <Checkbox.Group options={item.dict_values} value={[]} />
+                </Space>
               </Card>
-            </Col>)
-          })}
+            </Col>
+          ))}
         </Row>
       </Modal>
+      {/* <Cascader
+        style={{ width: '100%' }}
+        options={options}
+        onChange={onChange}
+        multiple
+        maxTagCount="responsive"
+      /> */}
     </div>
   )
 }
