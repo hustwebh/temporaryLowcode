@@ -11,7 +11,7 @@ import {
 import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
 import { getSchemaByPageObj, getSchemaByUrl, createSchema, UpdateSchema } from '@/services/lowcode';
-import { pageMsgToMenu, findTargetInMenuData, deepEquals, getFirstNodeFromTree } from "@/utils";
+import { pageMsgToMenu, findTargetInMenuData, treeForeach, deepEquals, getFirstNodeFromTree } from "@/utils";
 
 let { pathname } = location
 
@@ -19,8 +19,9 @@ export default () => {
   //获得页面信息
   const [pagesMenu, setPagesMenu] = useState<any[]>([]);
   // 当前页面
-  const [currentPage, setCurrentPage] = useState(localStorage.getItem("indicator") || "");
-
+  const [currentPage, setCurrentPage] = useState<string>(localStorage.getItem("indicator") || "");
+  const [openKeys, setOpenKeys] = useState<any>([]);
+  const [rootSubmenuKeys, setRootSubmenuKeys] = useState<string[]>([]);
   useEffect(() => {
     awaitInitPagesMsg();//获取Menu菜单信息并且重置页面Schema为对应进入的指标模型的Schema
   }, []);
@@ -28,7 +29,23 @@ export default () => {
   const awaitInitPagesMsg = async () => {
     //将页面信息和对应schema.json文件分开获取,首先获取页面信息
     const MenuData = pageMsgToMenu(await getAllCategories({ study_id: ~~pathname.split('/')[1] }))
+    const selectNode = treeForeach(MenuData, (item: any) => {
+      if (item.id.toString() === currentPage) return item;
+    })
+    const targetSubMenu = treeForeach(MenuData, (item: any) => {
+      if (item.id.toString() === selectNode.category_id.toString()) return item;
+    })
     setPagesMenu(MenuData)
+    setOpenKeys([targetSubMenu.key.toString()])
+    setRootSubmenuKeys(MenuData.map((item: any) => item.key.toString()))
+  }
+  const onOpenChange = (keys: any) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    if (rootSubmenuKeys.indexOf(latestOpenKey!) === -1) {
+      setOpenKeys(keys);
+    } else {
+      setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+    }
   }
 
   // /** 新建页面 */
@@ -173,6 +190,8 @@ export default () => {
         mode="inline"
         selectedKeys={[currentPage]}
         onSelect={handleSelect}
+        openKeys={openKeys}
+        onOpenChange={onOpenChange}
       />
     </>
   );

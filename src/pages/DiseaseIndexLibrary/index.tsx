@@ -186,7 +186,7 @@ export default function DiseaseIndexLibrary() {
   const { pathname } = useLocation();
   const [categories, setCategories] = useState<any>([])//获取分类和相关指标模型的原始数据
   const [indicator, setIndicator] = useState<number | null>(null)//获取初始状态下的指标模型id属性
-  const [defaultKey,setDefaultKey] = useState<string | null>("")//获取初始状态下的指标模型key属性用作Tree初始选中高亮
+  const [defaultKey,setDefaultKey] = useState<string>("")//获取初始状态下的指标模型key属性用作Tree初始选中高亮
 
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
   const [modalView, setModalView] = useState(false);

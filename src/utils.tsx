@@ -362,6 +362,18 @@ export function findFirstSelectNode(TreeData: any) {
   }
 }
 
+/* 寻找Tree结构中符合条件的节点 */
+export function treeForeach(TreeData: any,compFunc:any) {
+  for (const node of TreeData) {
+    if (compFunc(node)) return node
+    if (node.children) {
+      const res:any = treeForeach(node.children, compFunc)
+      if (res) return res
+    }
+  }
+  return null;
+}
+
 /* 从属性结构中获取到操作的节点对象 */
 export function getTargetNodeByKey(target: any, keysStr: string) {
   const keys = keysStr.split('.');
