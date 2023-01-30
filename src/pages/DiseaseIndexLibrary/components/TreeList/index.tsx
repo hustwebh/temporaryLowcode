@@ -15,7 +15,7 @@ import { getTargetNodeByKey } from '@/utils';
 import styles from './index.less';
 const { DirectoryTree, TreeNode } = Tree;
 
-const TreeList = ({ TreeData, defaultKey, setIndicator }: { TreeData: any, defaultKey: string, setIndicator: any }) => {
+const TreeList = ({ TreeData, defaultKey, setIndicator,setDefaultKey }: { TreeData: any, defaultKey: string, setIndicator: any,setDefaultKey:any }) => {
   const [treeData, setTreeData] = useState<any>(TreeData || []);
   const [rightClickNodeTreeItem, setRightClickNodeTreeItem] = useState<any>(null)
   useEffect(() => {
@@ -40,7 +40,8 @@ const TreeList = ({ TreeData, defaultKey, setIndicator }: { TreeData: any, defau
 
   const onSelect = async (keys: Key[], e: any) => {
     const targetNode = getTargetNodeByKey(treeData, keys[0].toString().slice(1))
-    await setIndicator(targetNode.id)
+    setIndicator(targetNode.id)
+    setDefaultKey(targetNode.key)
   }
 
   //右键菜单失去焦点时候关闭菜单

@@ -106,7 +106,7 @@ const DicValue: React.FC<{
         <Col span={12}>选项名</Col>
         <Col span={12}>选项值</Col>
       </Row>
-      {values.map((item, index) => {
+      {values && values.map((item, index) => {
         return (<Row style={{
           display: 'flex',
           justifyContent: 'space-around',
@@ -143,8 +143,9 @@ const DicValue: React.FC<{
 
 const TableTitle: React.FC<{
   tableData: any
+  tableName: string
   setTableName: any
-}> = ({ tableData, setTableName }) => {
+}> = ({ tableData, tableName, setTableName }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [value, setValue] = useState<string>(tableData.table_name)
   const handleChange = (e: any) => {
@@ -170,7 +171,7 @@ const TableTitle: React.FC<{
     </div>
   ) : (
     <div>
-      {`${value}`}
+      {`${tableName}`}
       <Button
         icon={<EditOutlined />}
         type='ghost'
@@ -186,7 +187,7 @@ export default function DiseaseIndexLibrary() {
   const { pathname } = useLocation();
   const [categories, setCategories] = useState<any>([])//获取分类和相关指标模型的原始数据
   const [indicator, setIndicator] = useState<number | null>(null)//获取初始状态下的指标模型id属性
-  const [defaultKey,setDefaultKey] = useState<string>("")//获取初始状态下的指标模型key属性用作Tree初始选中高亮
+  const [defaultKey, setDefaultKey] = useState<string>("")//获取初始状态下的指标模型key属性用作Tree初始选中高亮
 
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>(() => []);
   const [modalView, setModalView] = useState(false);
@@ -202,14 +203,17 @@ export default function DiseaseIndexLibrary() {
     {
       title: '字段名',
       dataIndex: 'name',
+      width: '9%'
     },
     {
       title: '字段英文名',
       dataIndex: 'field_name',
+      width: '9%'
     },
     {
       title: '类型',
       dataIndex: 'type',
+      width: '13%',
       valueType: 'select',
       valueEnum: {
         "int": {
@@ -232,14 +236,17 @@ export default function DiseaseIndexLibrary() {
     {
       title: '长度',
       dataIndex: 'length',
+      width: '7%'
     },
     {
       title: '小数点',
       dataIndex: 'decimal_point',
+      width: '7%'
     },
     {
       title: '不是null',
       dataIndex: 'not_null',
+      width: '7%',
       valueType: 'radio',
       valueEnum: {
         1: {
@@ -253,6 +260,33 @@ export default function DiseaseIndexLibrary() {
     {
       title: '注释',
       dataIndex: 'comment',
+      width: '8%'
+    },
+    {
+      title: '控件类',
+      dataIndex: 'tag',
+      valueType: 'select',
+      width: '13%',
+      valueEnum: {
+        "单选": {
+          text: '单选',
+        },
+        "多选": {
+          text: '多选',
+        },
+        "输入框": {
+          text: '输入框',
+        },
+        "下拉框": {
+          text: '下拉框',
+        },
+        "开关": {
+          text: '开关',
+        },
+        "受控渲染": {
+          text: '受控渲染'
+        }
+      },
     },
     {
       title: '字典值',
@@ -274,7 +308,7 @@ export default function DiseaseIndexLibrary() {
     {
       title: '操作',
       valueType: 'option',
-      width: 200,
+      width: 150,
       render: (text, record, _, action) => [
         <a
           key="editable"
@@ -305,13 +339,15 @@ export default function DiseaseIndexLibrary() {
   useEffect(() => {
     if (indicator) {
       localStorage.setItem("indicator", indicator.toString())//便于低代码页面获取默认页面信息
-      awaitGetIndicator();//获取当前页面上的指标模型
+      //下一行函数调用会导致请求重复，在FormRequest里调用函数
+      // awaitGetIndicator();//获取当前页面上的指标模型
       awaitAllIndicators();//获取所有其他的指标模型用于复制字段
     }
   }, [indicator])
 
   const formRequest = async () => {
     const result = await awaitGetIndicator();
+    setTableName(result.table_name)
     return {
       data: result.field_list,
       success: true,
@@ -322,13 +358,14 @@ export default function DiseaseIndexLibrary() {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
-    const { id,key } = findFirstSelectNode(TreeData)
+    const { id, key } = findFirstSelectNode(TreeData)
     setCategories(TreeData);
     setIndicator(id);
     setDefaultKey(key)
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
+    console.log(result);
     setTableData(result);
     setTableName(result.table_name);
     return result;
@@ -451,13 +488,14 @@ export default function DiseaseIndexLibrary() {
                   TreeData={categories}
                   defaultKey={defaultKey}
                   setIndicator={setIndicator}
+                  setDefaultKey={setDefaultKey}
                 />
               )
               : "待添加研究项"
           }
         </Col>
         <Col span={18}>
-          {indicator && tableData.field_list ? <>
+          {indicator ? <>
             <ProForm<{
               table: DataSourceType[];
             }>
@@ -478,15 +516,10 @@ export default function DiseaseIndexLibrary() {
             >
               <EditableProTable<DataSourceType>
                 rowKey="id"
-                scroll={{
-                  x: 960,
-                }}
-                // loading={tableLoading}
                 controlled
-                // expandable={{ expandedRowRender }}
                 actionRef={actionRef}
                 editableFormRef={editorFormRef}
-                headerTitle={<TableTitle tableData={tableData} setTableName={setTableName} />}
+                headerTitle={tableName && <TableTitle tableData={tableData} tableName={tableName} setTableName={setTableName} />}
                 value={tableData.field_list}
                 onChange={EditableTableChanged}
                 params={{ indicator }}

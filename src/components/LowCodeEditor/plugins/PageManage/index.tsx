@@ -1,4 +1,3 @@
-import { PageSchema, TransformStage } from '@alilc/lowcode-types';
 import { SelectInfo } from 'rc-menu/lib/interface';
 import { useEffect, useState } from 'react';
 import { project } from '@alilc/lowcode-engine';
@@ -40,7 +39,7 @@ export default () => {
     setRootSubmenuKeys(MenuData.map((item: any) => item.key.toString()))
   }
   const onOpenChange = (keys: any) => {
-    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    const latestOpenKey = keys.find((key:string) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey!) === -1) {
       setOpenKeys(keys);
     } else {
