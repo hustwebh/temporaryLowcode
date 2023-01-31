@@ -1,8 +1,6 @@
 import { request } from '@umijs/max';
 import { material, project } from '@alilc/lowcode-engine';
 import { message } from 'antd';
-import { filterPackages } from '@alilc/lowcode-plugin-inject'
-import { TransformStage } from '@alilc/lowcode-types';
 import schema from '@/assets/schema';
 import { PageSchema } from '@alilc/lowcode-types';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,10 +30,10 @@ export const getProjectSchemaFromLocalStorage = (scenarioName: string) => {
 //   );
 // }
 
-const setPackgesToLocalStorage = async () => {
-  const packages = await filterPackages(material.getAssets().packages);
-  localStorage.setItem('packages', JSON.stringify(packages));
-}
+// const setPackgesToLocalStorage = async () => {
+//   const packages = await filterPackages(material.getAssets().packages);
+//   localStorage.setItem('packages', JSON.stringify(packages));
+// }
 
 export const getPackagesFromLocalStorage = (scenarioName: string) => {
   if (!scenarioName) {
@@ -43,21 +41,6 @@ export const getPackagesFromLocalStorage = (scenarioName: string) => {
     return;
   }
   return JSON.parse(window.localStorage.getItem(getLSName(scenarioName, 'packages')) || '[]');
-}
-
-export const getSchemaByPageObj = async (defaultPage: any, currentPage: string) => {
-  const { page_url, table_name } = defaultPage;
-  let pageSchema;
-
-  if (!page_url) {
-    //页面page_url为null,此时需要先生成一个默认的Schema来填充低代码工作区
-    const pageSchemaLink = await createSchema(table_name)
-    //调用接口让后台存储指标模型的page_url属性发生更新
-    await modifyIndicatorData(~~currentPage, { page_url: pageSchemaLink[0].url })
-    pageSchema = await getSchemaByUrl(pageSchemaLink[0].url)
-  }
-  else pageSchema = await getSchemaByUrl(page_url)
-  return pageSchema
 }
 
 export const saveSchema = async () => {
@@ -101,8 +84,7 @@ export const resetSchema = async (scenarioName: string = 'antd') => {
 }
 
 export const insertForm = async () => {
-  const data = await getIndicatorData(~~(localStorage.getItem("indicator") || ""))
-  console.log("data",data);
+  const data = await getIndicatorData(~~(localStorage.getItem("indicator") || ""));
   const targetForm = createFormSchemaByData(data);
   let currentPageSchema = project.currentDocument?.exportSchema();
   if (currentPageSchema?.children) {

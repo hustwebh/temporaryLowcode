@@ -9,8 +9,9 @@ import {
 
 import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
-import { getSchemaByPageObj, getSchemaByUrl, createSchema, UpdateSchema } from '@/services/lowcode';
-import { pageMsgToMenu, findTargetInMenuData, treeForeach, deepEquals, getFirstNodeFromTree } from "@/utils";
+import { UpdateSchema } from '@/services/lowcode';
+import { getSchemaByPageObj }from './magageFunc';
+import { pageMsgToMenu, findTargetInMenuData, treeForeach, deepEquals } from "@/utils";
 
 let { pathname } = location
 

@@ -13,7 +13,6 @@ import DataSourcePanePlugin from '@alilc/lowcode-plugin-datasource-pane';
 import SchemaPlugin from '@alilc/lowcode-plugin-schema';
 import CodeEditor from "@alilc/lowcode-plugin-code-editor";
 import Inject, { injectAssets } from '@alilc/lowcode-plugin-inject';
-import { request } from '@umijs/max';
 
 // 注册到引擎
 import TitleSetter from '@alilc/lowcode-setter-title';
@@ -21,13 +20,12 @@ import BehaviorSetter from '@/components/LowCodeEditor/setters/behavior-setter';
 import CustomSetter from '@/components/LowCodeEditor/setters/custom-setter';
 import TestSetter from '@/components/LowCodeEditor/setters/test-setter';
 import Logo from '@/components/LowCodeEditor/plugins/logo';
-import PageManage from '@/components/LowCodeEditor/plugins/PageManage'
+import PageManage from '@/components/LowCodeEditor/plugins/PageManage';
+import createFormPlugin from '@/components/LowCodeEditor/plugins/createForm';
 
 import {
   saveSchema,
   resetSchema,
-  insertForm,
-  // getProjectSchemaFromLocalStorage,
 } from '@/services/lowcode';
 import { getSchemaByPageObj, getSchemaByUrl, createSchema, UpdateSchema } from '@/services/lowcode';
 import { pageMsgToMenu, findTargetInMenuData } from "@/utils";
@@ -245,16 +243,8 @@ export default async function registerPlugins() {
           props: {
             align: 'right',
           },
-          content: (
-            <Button onClick={() => insertForm()}>
-              生成表单
-            </Button>
-          ),
+          content: createFormPlugin
         });
-        // hotkey.bind('command+s', (e) => {
-        //   e.preventDefault();
-        //   saveSchema('antd')
-        // });
       },
     };
   }
