@@ -102,6 +102,7 @@ export const resetSchema = async (scenarioName: string = 'antd') => {
 
 export const insertForm = async () => {
   const data = await getIndicatorData(~~(localStorage.getItem("indicator") || ""))
+  console.log("data",data);
   const targetForm = createFormSchemaByData(data);
   let currentPageSchema = project.currentDocument?.exportSchema();
   if (currentPageSchema?.children) {

@@ -75,7 +75,6 @@ export default function TestSetter(props: any) {
                 <Space>
                   {`${item.name}:`}
                   <Radio.Group options={item.dict_values} value={null} />/
-                  <Checkbox.Group options={item.dict_values} value={[]} />
                 </Space>
               </Card>
             </Col>

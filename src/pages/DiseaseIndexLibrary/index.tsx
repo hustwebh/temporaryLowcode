@@ -465,6 +465,7 @@ export default function DiseaseIndexLibrary() {
         length: ~~item.length,
         not_null: ~~item.not_null,
         type: item.type,
+        tag:item.tag,
         dict_values: item.dict_values
       }))
     })

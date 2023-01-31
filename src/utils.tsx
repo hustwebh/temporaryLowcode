@@ -11,9 +11,30 @@ export function createFormSchemaByData(data: any) {
   const { field_list } = data;
   let formSchema = createFormSchema();
   let formChildren = field_list.map((item: any) => {
-    const { name, field_name, dict_values } = item;
+    const { name, field_name, dict_values, tag } = item;
     let formItemSchema = createFormItemSchema({ name, field_name });
-    formItemSchema.children = createRadioGroupSchema({ dict_values });
+    switch (tag) {
+      case "单选":
+        formItemSchema.children = createRadioGroupSchema({ dict_values });
+        break;
+      case "多选":
+        formItemSchema.children = createCheckboxGroupSchema({ dict_values });
+        break;
+      case "输入框":
+        formItemSchema.children = createInputSchema();
+        break;
+      case "下拉框":
+        formItemSchema.children = createSelectSchema({ dict_values });
+        break;
+      case "开关":
+        formItemSchema.children = createSwitchSchema();
+        break;
+      // case "受控渲染":
+      //   formItemSchema.children = create//Schema();
+      //   break;
+      default:
+        break;
+    }
     return formItemSchema;
   })
   formSchema.children = formChildren;
@@ -62,7 +83,6 @@ function createFormSchema() {
     "conditionGroup": ""
   }
 }
-
 function createFormItemSchema({ name, field_name }: {
   name: string;
   field_name: string
@@ -125,8 +145,7 @@ function createRadioGroupSchema({ dict_values }: {
     "conditionGroup": ""
   };
 }
-
-function createCheckGroupSchema({ dict_values }: {
+function createCheckboxGroupSchema({ dict_values }: {
   dict_values: any[]
 }) {
   const options = dict_values.map((_) => ({
@@ -141,6 +160,74 @@ function createCheckGroupSchema({ dict_values }: {
       "name": "",
       "defaultValue": [],
       "disabled": false
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }
+}
+function createInputSchema() {
+  return {
+    "componentName": "Input",
+    "id": "node_ocldk3bys81",
+    "props": {
+      "placeholder": "请输入",
+      "bordered": true,
+      "disabled": false
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }
+}
+function createSelectSchema({ dict_values }: {
+  dict_values: any[]
+}) {
+  const options = dict_values.map((_) => ({
+    label: _.name,
+    value: _.value
+  }))
+  return {
+    "componentName": "Select",
+    "id": uuidv4(),
+    "props": {
+      "style": {
+        "width": 200
+      },
+      "options": options,
+      "allowClear": false,
+      "autoFocus": false,
+      "defaultActiveFirstOption": true,
+      "disabled": false,
+      "labelInValue": false,
+      "showSearch": false,
+      "loading": false,
+      "bordered": true,
+      "optionFilterProp": "value",
+      "tokenSeparators": [],
+      "maxTagCount": 0,
+      "maxTagTextLength": 0
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }
+}
+function createSwitchSchema() {
+  return {
+    "componentName": "Switch",
+    "id": uuidv4(),
+    "props": {
+      "defaultChecked": true,
+      "autoFocus": false,
+      "disabled": false,
+      "loading": false
     },
     "hidden": false,
     "title": "",
@@ -363,11 +450,11 @@ export function findFirstSelectNode(TreeData: any) {
 }
 
 /* 寻找Tree结构中符合条件的节点 */
-export function treeForeach(TreeData: any,compFunc:any) {
+export function treeForeach(TreeData: any, compFunc: any) {
   for (const node of TreeData) {
     if (compFunc(node)) return node
     if (node.children) {
-      const res:any = treeForeach(node.children, compFunc)
+      const res: any = treeForeach(node.children, compFunc)
       if (res) return res
     }
   }
