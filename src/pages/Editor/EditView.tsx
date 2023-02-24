@@ -16,10 +16,11 @@ preference.set('DataSourcePane', {
 });
 
 const Workbench = common.skeletonCabin.Workbench;
-const EditView: React.FC = () => {
 
+const EditView: React.FC = () => {
   useEffect(() => {
-    plugins.init(preference).then(() => {  
+    plugins.init(preference).then(() => { 
+      console.log("plugins.initEND");
       setHasPluginInited(true);
     }).catch(err => console.error(err));
   }, []);

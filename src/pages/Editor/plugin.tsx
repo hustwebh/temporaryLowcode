@@ -1,6 +1,7 @@
-import type {
-  ILowCodePluginContext
-} from '@alilc/lowcode-engine';
+// import type {
+//   IPublicModelPluginContext
+// } from '@alilc/lowcode-engine';
+import { IPublicModelPluginContext } from '@alilc/lowcode-types';
 import {
   plugins,
   project,
@@ -27,49 +28,43 @@ import {
   saveSchema,
   resetSchema,
 } from '@/services/lowcode';
-import { getSchemaByPageObj, getSchemaByUrl, createSchema, UpdateSchema } from '@/services/lowcode';
+import { getSchemaByPageObj } from '@/components/LowCodeEditor/plugins/PageManage/magageFunc';
 import { pageMsgToMenu, findTargetInMenuData } from "@/utils";
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
 
-import assets from '@/assets/assets';
-import schema from '@/assets/schema';
+import assets from '@/assets/assets.json';
 
 const { pathname } = location;
 
 export default async function registerPlugins() {
-  await plugins.register(Inject);
-
+  await plugins.register(Inject)
   // plugin API 见 https://lowcode-engine.cn/docV2/ibh9fh
   SchemaPlugin.pluginName = 'SchemaPlugin';
   await plugins.register(SchemaPlugin);
 
-  const editorInit = (ctx: ILowCodePluginContext) => {
+  const editorInit = (ctx: IPublicModelPluginContext) => {
     return {
       name: 'editor-init',
       async init() {
-        // 修改面包屑组件的分隔符属性setter
         // 设置物料描述
         const { material, project } = ctx;
-
+        console.log(await injectAssets(assets));
         material.setAssets(await injectAssets(assets));
-
         // 加载 schema
         const currentPage = localStorage.getItem("indicator")||"";
         //选择从进入的指标模型作为默认页面:
         const defaultPage = findTargetInMenuData(pageMsgToMenu(await getAllCategories({ study_id: ~~pathname.split('/')[1] })), currentPage)
         //接下来要设置获取对应Schema文件的逻辑
         const pageSchema = await getSchemaByPageObj(defaultPage, currentPage)
-        // project.currentDocument && project.removeDocument(project.currentDocument);
         project.openDocument(pageSchema);
         localStorage.setItem("currentSchema", JSON.stringify(pageSchema))
-        // project.openDocument(getProjectSchemaFromLocalStorage('antd').componentsTree?.[0] || schema);
       },
     };
   }
   editorInit.pluginName = 'editorInit';
   await plugins.register(editorInit);
 
-  const builtinPluginRegistry = (ctx: ILowCodePluginContext) => {
+  const builtinPluginRegistry = (ctx: IPublicModelPluginContext) => {
     return {
       name: 'builtin-plugin-registry',
       async init() {
@@ -128,7 +123,7 @@ export default async function registerPlugins() {
   await plugins.register(builtinPluginRegistry);
 
   // 设置内置 setter 和事件绑定、插件绑定面板
-  const setterRegistry = (ctx: ILowCodePluginContext) => {
+  const setterRegistry = (ctx: IPublicModelPluginContext) => {
     const { setterMap, pluginMap } = AliLowCodeEngineExt;
     return {
       name: 'ext-setters-registry',
@@ -161,7 +156,7 @@ export default async function registerPlugins() {
   await plugins.register(setterRegistry);
 
   // 注册保存面板
-  const saveSample = (ctx: ILowCodePluginContext) => {
+  const saveSample = (ctx: IPublicModelPluginContext) => {
     return {
       name: 'saveSample',
       async init() {
@@ -204,7 +199,7 @@ export default async function registerPlugins() {
   await plugins.register(saveSample);
 
   // 注册预览
-  const preview = (ctx: ILowCodePluginContext) => {
+  const preview = (ctx: IPublicModelPluginContext) => {
     return {
       name: 'preview',
       async init() {
@@ -230,11 +225,11 @@ export default async function registerPlugins() {
   await plugins.register(preview);
 
   // 注册生成表单面板
-  const createForm = (ctx: ILowCodePluginContext) => {
+  const createForm = (ctx: IPublicModelPluginContext) => {
     return {
       name: 'createForm',
       async init() {
-        const { skeleton, hotkey } = ctx;
+        const { skeleton } = ctx;
         
         skeleton.add({
           name: 'createForm',
@@ -261,7 +256,7 @@ export default async function registerPlugins() {
   await plugins.register(CodeGenPlugin);
 
   // 设置自定义 setter 和事件绑定、插件绑定面板
-  const customSetter = (ctx: ILowCodePluginContext) => {
+  const customSetter = (ctx: IPublicModelPluginContext) => {
     return {
       name: '___registerCustomSetter___',
       async init() {

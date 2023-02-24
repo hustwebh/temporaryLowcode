@@ -4,8 +4,7 @@ import { message } from 'antd';
 import schema from '@/assets/schema';
 import { PageSchema } from '@alilc/lowcode-types';
 import { v4 as uuidv4 } from 'uuid';
-import { modifyIndicatorData, getIndicatorData } from '@/services/ant-design-pro/tableData';
-import { createFormSchemaByData } from '@/utils'
+import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 
 let defaultPageSchema: PageSchema = schema
 
@@ -81,19 +80,6 @@ export const resetSchema = async (scenarioName: string = 'antd') => {
   project.getCurrentDocument()?.importSchema({ componentName: 'Page', fileName: 'sample' });
   project.simulatorHost?.rerender();
   message.success('成功重置页面');
-}
-
-export const insertForm = async () => {
-  const data = await getIndicatorData(~~(localStorage.getItem("indicator") || ""));
-  const targetForm = createFormSchemaByData(data);
-  let currentPageSchema = project.currentDocument?.exportSchema();
-  if (currentPageSchema?.children) {
-    currentPageSchema.children.push(targetForm)
-  } else {
-    currentPageSchema.children = targetForm
-  }
-  project.currentDocument && project.removeDocument(project.currentDocument);
-  project.openDocument(currentPageSchema)
 }
 
 export const createSchema = async (pageName: string) => {

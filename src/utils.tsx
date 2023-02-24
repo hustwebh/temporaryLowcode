@@ -56,7 +56,7 @@ export function pageMsgToMenu(originalData: any) {
     }
   })
 }
-/* 该函数作用是在保存Schema时，寻找返回url连接的所属指标模型对象*/
+/* 该函数作用是寻找指定id的节点对象*/
 export function findTargetInMenuData(MenuData: any, currentId: string | null): any {
   let target = null;
   let isGet = false;
@@ -158,7 +158,6 @@ export function fileToJson(file: any) {
 /**
  * 以下辅助函数功能都用于辅助生成研究页面的树形数据
  */
-
 
 /* 专门处理树列表中的指标模型项，使其符合属性antd Tree组件的数据格式 */
 function indicatorsDataToTree(indicatorsData: any) {

@@ -74,7 +74,7 @@ export default function TestSetter(props: any) {
               <Card hoverable>
                 <Space>
                   {`${item.name}:`}
-                  <Radio.Group options={item.dict_values} value={null} />/
+                  <Radio.Group options={item.dict_values} value={null} />
                 </Space>
               </Card>
             </Col>

@@ -358,14 +358,13 @@ export default function DiseaseIndexLibrary() {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
-    const { id, key } = findFirstSelectNode(TreeData)
+    const { id, key } = findFirstSelectNode(TreeData)//TODO
     setCategories(TreeData);
     setIndicator(id);
     setDefaultKey(key)
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
-    console.log(result);
     setTableData(result);
     setTableName(result.table_name);
     return result;

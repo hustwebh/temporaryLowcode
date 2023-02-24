@@ -149,41 +149,6 @@ export default () => {
 
   return (
     <>
-      {/* <Row gutter={8} style={{ paddingLeft: 14 }}>
-        <Col>
-          <Button
-            size="small"
-            icon={<FileAddOutlined />}
-            onClick={openCreatePageModal}
-          >
-            新建
-          </Button>
-        </Col>
-        <Col>
-          <Button
-            size="small"
-            icon={<ExportOutlined />}
-            onClick={exportAllPageSchema}
-
-          >
-            导出
-          </Button>
-        </Col>
-        <Col>
-          <Upload
-            showUploadList={false}
-            onChange={importAllPageSchema}
-          >
-            <Button
-              size="small"
-              icon={<ImportOutlined />}
-              disabled
-            >
-              导入
-            </Button>
-          </Upload>
-        </Col>
-      </Row> */}
       <Divider style={{ marginTop: 14, marginBottom: 0 }} />
       <Menu
         items={pagesMenu}
