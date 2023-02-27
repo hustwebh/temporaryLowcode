@@ -1,6 +1,3 @@
-// import type {
-//   IPublicModelPluginContext
-// } from '@alilc/lowcode-engine';
 import { IPublicModelPluginContext } from '@alilc/lowcode-types';
 import {
   plugins,
@@ -20,6 +17,7 @@ import TitleSetter from '@alilc/lowcode-setter-title';
 import BehaviorSetter from '@/components/LowCodeEditor/setters/behavior-setter';
 import CustomSetter from '@/components/LowCodeEditor/setters/custom-setter';
 import TestSetter from '@/components/LowCodeEditor/setters/test-setter';
+import ControlledSetter from '@/components/LowCodeEditor/setters/controlled-setter';
 import Logo from '@/components/LowCodeEditor/plugins/logo';
 import PageManage from '@/components/LowCodeEditor/plugins/PageManage';
 import createFormPlugin from '@/components/LowCodeEditor/plugins/createForm';
@@ -263,9 +261,10 @@ export default async function registerPlugins() {
         const { setters } = ctx;
 
         setters.registerSetter('TitleSetter', TitleSetter);
-        setters.registerSetter('BehaviorSetter', BehaviorSetter);
-        setters.registerSetter('CustomSetter', CustomSetter);
-        setters.registerSetter('TestSetter', TestSetter)
+        // setters.registerSetter('BehaviorSetter', BehaviorSetter);
+        // setters.registerSetter('CustomSetter', CustomSetter);
+        setters.registerSetter('TestSetter', TestSetter);
+        setters.registerSetter('ControlledSetter',ControlledSetter)
       },
     };
   }

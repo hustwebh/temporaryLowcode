@@ -83,14 +83,17 @@ export function createFormItemSchema({ name, field_name }: {
     "conditionGroup": "",
   };
 }
-export function createRadioGroupSchema({ dict_values }: {
+export function createRadioGroupSchema({ name, field_name, dict_values }: {
+  name: string;
+  field_name: string;
   dict_values: any[]
 }) {
   const options = dict_values.map((_) => ({
     label: _.name,
     value: _.value
   }))
-  return {
+  let formItemSchema: any = createFormItemSchema({ name, field_name });
+  formItemSchema.children = [{
     "componentName": "antdRadioGroup",
     "id": uuidv4(),
     "props": {
@@ -103,16 +106,20 @@ export function createRadioGroupSchema({ dict_values }: {
     "isLocked": false,
     "condition": true,
     "conditionGroup": ""
-  };
+  }]
+  return formItemSchema;
 }
-export function createCheckboxGroupSchema({ dict_values }: {
+export function createCheckboxGroupSchema({ name, field_name, dict_values }: {
+  name: string;
+  field_name: string;
   dict_values: any[]
 }) {
   const options = dict_values.map((_) => ({
     label: _.name,
     value: _.value
   }))
-  return {
+  let formItemSchema: any = createFormItemSchema({ name, field_name });
+  formItemSchema.children = [{
     "componentName": "antdCheckboxGroup",
     "id": uuidv4(),
     "props": {
@@ -126,10 +133,15 @@ export function createCheckboxGroupSchema({ dict_values }: {
     "isLocked": false,
     "condition": true,
     "conditionGroup": ""
-  }
+  }]
+  return formItemSchema;
 }
-export function createInputSchema() {
-  return {
+export function createInputSchema({ name, field_name }: {
+  name: string;
+  field_name: string;
+}) {
+  let formItemSchema: any = createFormItemSchema({ name, field_name });
+  formItemSchema.children = [{
     "componentName": "Input",
     "id": "node_ocldk3bys81",
     "props": {
@@ -142,16 +154,20 @@ export function createInputSchema() {
     "isLocked": false,
     "condition": true,
     "conditionGroup": ""
-  }
+  }]
+  return formItemSchema
 }
-export function createSelectSchema({ dict_values }: {
+export function createSelectSchema({ name, field_name, dict_values }: {
+  name: string;
+  field_name: string;
   dict_values: any[]
 }) {
   const options = dict_values.map((_) => ({
     label: _.name,
     value: _.value
   }))
-  return {
+  let formItemSchema: any = createFormItemSchema({ name, field_name });
+  formItemSchema.children = {
     "componentName": "Select",
     "id": uuidv4(),
     "props": {
@@ -178,9 +194,14 @@ export function createSelectSchema({ dict_values }: {
     "condition": true,
     "conditionGroup": ""
   }
+  return formItemSchema
 }
-export function createSwitchSchema() {
-  return {
+export function createSwitchSchema({ name, field_name }: {
+  name: string;
+  field_name: string;
+}) {
+  let formItemSchema: any = createFormItemSchema({ name, field_name });
+  formItemSchema.children = [{
     "componentName": "Switch",
     "id": uuidv4(),
     "props": {
@@ -194,5 +215,41 @@ export function createSwitchSchema() {
     "isLocked": false,
     "condition": true,
     "conditionGroup": ""
+  }]
+  return formItemSchema
+}
+export function createControlledContainerSchema({ name, field_name }: {
+  name: string;
+  field_name: string;
+}) {
+  let formItemSchema: any = createFormItemSchema({ name, field_name });
+  formItemSchema.children = [{
+    "componentName": "controlledSwitch",
+    "id": uuidv4(),
+    "props": {
+      "checked": true,
+      "size": "default",
+      "defaultChecked": true,
+      "disabled": false,
+      "loading": false,
+      "autoFocus": false
+    },
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": ""
+  }]
+  let boxSchema = {
+    "componentName": "Box",
+    "id": uuidv4(),
+    "props": {},
+    "hidden": false,
+    "title": "",
+    "isLocked": false,
+    "condition": true,
+    "conditionGroup": "",
+    "children": [formItemSchema]
   }
+  return boxSchema;
 }

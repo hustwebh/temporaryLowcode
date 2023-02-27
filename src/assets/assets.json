@@ -55,20 +55,20 @@
     },
     {
       "package": "zyr-material",
-      "version": "0.1.4",
+      "version": "0.1.9",
       "library": "BizComps",
       "urls": [
-        "https://unpkg.com/zyr-material@0.1.4/build/lowcode/render/default/view.js",
-        "https://unpkg.com/zyr-material@0.1.4/build/lowcode/render/default/view.css"
+        "https://unpkg.com/zyr-material@0.1.9/build/lowcode/render/default/view.js",
+        "https://unpkg.com/zyr-material@0.1.9/build/lowcode/render/default/view.css"
       ],
       "editUrls": [
-        "https://unpkg.com/zyr-material@0.1.4/build/lowcode/view.js",
-        "https://unpkg.com/zyr-material@0.1.4/build/lowcode/view.css"
+        "https://unpkg.com/zyr-material@0.1.9/build/lowcode/view.js",
+        "https://unpkg.com/zyr-material@0.1.9/build/lowcode/view.css"
       ],
       "advancedUrls": {
         "default": [
-          "https://unpkg.com/zyr-material@0.1.4/build/lowcode/render/default/view.js",
-          "https://unpkg.com/zyr-material@0.1.4/build/lowcode/render/default/view.css"
+          "https://unpkg.com/zyr-material@0.1.9/build/lowcode/render/default/view.js",
+          "https://unpkg.com/zyr-material@0.1.9/build/lowcode/render/default/view.css"
         ]
       },
       "advancedEditUrls": {}
@@ -90,15 +90,15 @@
       "exportName": "ZyrMaterialMeta",
       "npm": {
         "package": "zyr-material",
-        "version": "0.1.4"
+        "version": "0.1.9"
       },
-      "url": "https://unpkg.com/zyr-material@0.1.4/build/lowcode/meta.js",
+      "url": "https://unpkg.com/zyr-material@0.1.9/build/lowcode/meta.js",
       "urls": {
-        "default": "https://unpkg.com/zyr-material@0.1.4/build/lowcode/meta.js"
+        "default": "https://unpkg.com/zyr-material@0.1.9/build/lowcode/meta.js"
       },
       "advancedUrls": {
         "default": [
-          "https://unpkg.com/zyr-material@0.1.4/build/lowcode/meta.js"
+          "https://unpkg.com/zyr-material@0.1.9/build/lowcode/meta.js"
         ]
       }
     }

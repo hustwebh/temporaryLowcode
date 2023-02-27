@@ -9,7 +9,8 @@ import {
   createCheckboxGroupSchema,
   createInputSchema,
   createSelectSchema,
-  createSwitchSchema
+  createSwitchSchema,
+  createControlledContainerSchema
 } from './FormSchema';
 
 function createFormSchemaByData(data: any) {
@@ -17,26 +18,26 @@ function createFormSchemaByData(data: any) {
   let formSchema:any = createFormSchema();
   let formChildren = field_list.map((item: any) => {
     const { name, field_name, dict_values, tag } = item;
-    let formItemSchema:any = createFormItemSchema({ name, field_name });
+    let formItemSchema;
     switch (tag) {
       case "单选":
-        formItemSchema.children = createRadioGroupSchema({ dict_values });
+        formItemSchema = createRadioGroupSchema({ name, field_name,dict_values });
         break;
       case "多选":
-        formItemSchema.children = createCheckboxGroupSchema({ dict_values });
+        formItemSchema = createCheckboxGroupSchema({ name, field_name,dict_values });
         break;
       case "输入框":
-        formItemSchema.children = createInputSchema();
+        formItemSchema = createInputSchema({ name, field_name });
         break;
       case "下拉框":
-        formItemSchema.children = createSelectSchema({ dict_values });
+        formItemSchema = createSelectSchema({ name, field_name,dict_values });
         break;
       case "开关":
-        formItemSchema.children = createSwitchSchema();
+        formItemSchema = createSwitchSchema({ name, field_name });
         break;
-      // case "受控渲染":
-      //   formItemSchema.children = create//Schema();
-      //   break;
+      case "受控渲染":
+        formItemSchema = createControlledContainerSchema({ name, field_name });
+        break;
       default:
         break;
     }
