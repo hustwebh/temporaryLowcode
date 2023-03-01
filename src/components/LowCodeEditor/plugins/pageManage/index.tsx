@@ -10,7 +10,7 @@ import {
 import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
 import { UpdateSchema } from '@/services/lowcode';
-import { setPageSchemaToLocalStorage } from '@/services/lowcode/local';
+import { setProjectSchemaToLocalStorage } from '@/services/lowcode/local';
 import { getSchemaByPageObj } from './magageFunc';
 import { pageMsgToMenu, findTargetInMenuData, treeForeach, deepEquals } from "@/utils";
 
@@ -128,7 +128,7 @@ export default () => {
     const selectedKey = selectedKeys[0];
     setCurrentPage(selectedKey);
     // 在线保存,
-    // if (deepEquals(pageSchema, JSON.parse(localStorage.getItem("currentPageSchema") || ""))) {
+    // if (deepEquals(pageSchema, JSON.parse(localStorage.getItem("currentProjectSchema") || "{}").componentsTree[0])) {
     savePage()
       .then(async () => {//确保在线保存成功后再切其他页面
         const newPageObj = findTargetInMenuData(pagesMenu, selectedKey);
@@ -137,7 +137,7 @@ export default () => {
         const pageSchema = await getSchemaByPageObj(newPageObj, selectedKey)
         project.currentDocument && project.removeDocument(project.currentDocument);
         project.openDocument(pageSchema);
-        setPageSchemaToLocalStorage(pageSchema);
+        setProjectSchemaToLocalStorage(pageSchema);
         // 为了更快地将所点击页面的 schema 渲染到画布上，重新获取所有页面的数据这一操作可以晚点再做
       })
       .catch(() => {

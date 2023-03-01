@@ -5,7 +5,7 @@ import { Button } from 'antd';
 const createFormPluginContent: React.FC<PluginProps> = () => {
   return (
     <Button type="primary" onClick={() => {
-      window.open("/Preview/index.html" )
+      window.open("/Preview" )
     }}>
       预览
     </Button>

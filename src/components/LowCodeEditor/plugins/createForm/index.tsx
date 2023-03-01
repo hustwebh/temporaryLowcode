@@ -51,7 +51,7 @@ function createFormSchemaByData(data: any) {
 const insertForm = async () => {
   const data = await getIndicatorData(~~(localStorage.getItem("indicator") || ""));
   const targetForm = createFormSchemaByData(data);
-  let currentPageSchema = project.currentDocument?.exportSchema();
+  let currentPageSchema = project.exportSchema().componentsTree[0];
   if (currentPageSchema?.children) {
     currentPageSchema.children.push(targetForm)
   } else {

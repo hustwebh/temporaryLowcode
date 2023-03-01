@@ -9,10 +9,10 @@ import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 let defaultPageSchema: IPublicTypePageSchema = schema
 
 export const saveSchema = async () => {
-  const currentPageSchema = project.currentDocument?.exportSchema();
-  localStorage.setItem("currentPageSchema", JSON.stringify(currentPageSchema));
+  const currentProjectSchema = project.exportSchema();
+  localStorage.setItem("currentProjectSchema", JSON.stringify(currentProjectSchema));
   const currentPage = localStorage.getItem("indicator") || "";
-  const result = await UpdateSchema(currentPageSchema)
+  const result = await UpdateSchema(currentProjectSchema.componentsTree[0])
   await modifyIndicatorData(~~currentPage, { page_url: result[0].url })
   message.success('成功保存');
 };

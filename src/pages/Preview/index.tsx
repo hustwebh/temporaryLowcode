@@ -3,6 +3,7 @@ import { buildComponents, AssetLoader } from '@alilc/lowcode-utils';
 import ReactRenderer from '@alilc/lowcode-react-renderer';
 import { injectComponents } from '@alilc/lowcode-plugin-inject';
 import { getPageSchemaFromLocalStorage, getPackagesFromLocalStorage } from '@/services/lowcode/local';
+import { project } from '@alilc/lowcode-engine';
 
 export default () => {
   const [data, setData] = useState<{ schema: any, components: any }>();
@@ -39,6 +40,7 @@ export default () => {
 
   useEffect(() => {
     init();
+    console.log(123);
   }, []);
 
   return (data?.schema && (<ReactRenderer

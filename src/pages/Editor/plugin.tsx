@@ -26,7 +26,7 @@ import {
   resetSchema,
 } from '@/services/lowcode';
 import {
-  setPageSchemaToLocalStorage,
+  setProjectSchemaToLocalStorage,
   setPackgesToLocalStorage
 } from '@/services/lowcode/local';
 import { getSchemaByPageObj } from '@/components/LowCodeEditor/plugins/pageManage/magageFunc';
@@ -57,7 +57,7 @@ export default async function registerPlugins() {
         //接下来要设置获取对应Schema文件的逻辑
         const pageSchema = await getSchemaByPageObj(defaultPage, currentIndictorId)
         project.openDocument(pageSchema);
-        setPageSchemaToLocalStorage(pageSchema);
+        setProjectSchemaToLocalStorage(project.exportSchema());
         setPackgesToLocalStorage();
       },
     };
