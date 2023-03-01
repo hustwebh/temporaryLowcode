@@ -2,15 +2,14 @@ import { useState, useEffect } from 'react';
 import { buildComponents, AssetLoader } from '@alilc/lowcode-utils';
 import ReactRenderer from '@alilc/lowcode-react-renderer';
 import { injectComponents } from '@alilc/lowcode-plugin-inject';
-import { getProjectSchemaFromLocalStorage, getPackagesFromLocalStorage } from '@/services/lowcode';
+import { getPageSchemaFromLocalStorage, getPackagesFromLocalStorage } from '@/services/lowcode/local';
 
 export default () => {
   const [data, setData] = useState<{ schema: any, components: any }>();
 
   async function init() {
-    const scenarioName = 'antd';
-    const packages = getPackagesFromLocalStorage(scenarioName);
-    const projectSchema = getProjectSchemaFromLocalStorage(scenarioName);
+    const packages = getPackagesFromLocalStorage();
+    const projectSchema = getPageSchemaFromLocalStorage();
     const { componentsMap: componentsMapArray = [], componentsTree = [] } = projectSchema;
     const componentsMap: any = {};
     componentsMapArray.forEach((component: any) => {

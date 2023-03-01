@@ -91,7 +91,6 @@ const TreeList = ({ TreeData, defaultKey, setIndicator,setDefaultKey }: { TreeDa
         onSelect={onSelect}
         onRightClick={RightClickTreeNode}
         selectedKeys={[defaultKey]}
-      // defaultSelectedKeys={[getDefaultSelectKey(defaultIndicatorId)]}
       >
         {TreeNodeRender(treeData)}
       </DirectoryTree>

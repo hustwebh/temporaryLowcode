@@ -59,6 +59,11 @@ export default [
     component: './Editor',
   },
   {
+    path: '/Preview',
+    layout: false,
+    component: './Preview',
+  },
+  {
     path: '/',
     redirect: '/WorkPlace',
   },

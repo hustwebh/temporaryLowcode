@@ -115,7 +115,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         const menuRoute: any = [
           {
             path: `/WorkPlace`,
-            name: '工作台',
+            name: '选择项目',
             icon: 'smile'
           },
           {

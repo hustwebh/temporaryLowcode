@@ -1,4 +1,5 @@
 import type { PluginProps } from '@alilc/lowcode-types';
+import { IPublicModelPluginContext } from '@alilc/lowcode-types';
 import { Button } from 'antd';
 import { getIndicatorData } from '@/services/ant-design-pro/tableData';
 import { project } from '@alilc/lowcode-engine';
@@ -15,22 +16,22 @@ import {
 
 function createFormSchemaByData(data: any) {
   const { field_list } = data;
-  let formSchema:any = createFormSchema();
+  let formSchema: any = createFormSchema();
   let formChildren = field_list.map((item: any) => {
     const { name, field_name, dict_values, tag } = item;
     let formItemSchema;
     switch (tag) {
       case "单选":
-        formItemSchema = createRadioGroupSchema({ name, field_name,dict_values });
+        formItemSchema = createRadioGroupSchema({ name, field_name, dict_values });
         break;
       case "多选":
-        formItemSchema = createCheckboxGroupSchema({ name, field_name,dict_values });
+        formItemSchema = createCheckboxGroupSchema({ name, field_name, dict_values });
         break;
       case "输入框":
         formItemSchema = createInputSchema({ name, field_name });
         break;
       case "下拉框":
-        formItemSchema = createSelectSchema({ name, field_name,dict_values });
+        formItemSchema = createSelectSchema({ name, field_name, dict_values });
         break;
       case "开关":
         formItemSchema = createSwitchSchema({ name, field_name });
@@ -60,7 +61,7 @@ const insertForm = async () => {
   project.openDocument(currentPageSchema)
 }
 
-const createForm: React.FC<PluginProps> = (props): React.ReactElement => {
+const createFormPluginContent: React.FC<PluginProps> = () => {
   return (
     <Button onClick={() => insertForm()}>
       生成表单
@@ -68,4 +69,27 @@ const createForm: React.FC<PluginProps> = (props): React.ReactElement => {
   );
 };
 
-export default createForm;
+const CreateFormPlugin = (ctx: IPublicModelPluginContext) => {
+  return {
+    async init() {
+      const { skeleton } = ctx;
+
+      skeleton.add({
+        name: 'createForm',
+        area: 'topArea',
+        type: 'Widget',
+        props: {
+          align: 'right',
+        },
+        content: createFormPluginContent
+      });
+    },
+  };
+}
+
+CreateFormPlugin.pluginName = 'createForm';
+// CreateFormPlugin.meta = {
+//   dependencies: ['EditorInitPlugin'],
+// };
+
+export default CreateFormPlugin;

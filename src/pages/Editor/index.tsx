@@ -36,7 +36,6 @@ const LowcodePage: React.FC = () => {
 
   useEffect(() => {
     init().then(()=> {
-      console.log("initPluginsEnd");
       setInited(true);
     }).catch(() => {
       location.reload();

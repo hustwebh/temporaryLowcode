@@ -1,4 +1,4 @@
-import { IPublicModelPluginContext } from '@alilc/lowcode-types';
+import type { IPublicModelPluginContext } from '@alilc/lowcode-types';
 import {
   plugins,
   project,
@@ -10,23 +10,26 @@ import ComponentsPane from '@alilc/lowcode-plugin-components-pane';
 import DataSourcePanePlugin from '@alilc/lowcode-plugin-datasource-pane';
 import SchemaPlugin from '@alilc/lowcode-plugin-schema';
 import CodeEditor from "@alilc/lowcode-plugin-code-editor";
-import Inject, { injectAssets } from '@alilc/lowcode-plugin-inject';
+import Inject, { injectAssets,filterPackages } from '@alilc/lowcode-plugin-inject';
 
 // 注册到引擎
 import TitleSetter from '@alilc/lowcode-setter-title';
-import BehaviorSetter from '@/components/LowCodeEditor/setters/behavior-setter';
-import CustomSetter from '@/components/LowCodeEditor/setters/custom-setter';
 import TestSetter from '@/components/LowCodeEditor/setters/test-setter';
 import ControlledSetter from '@/components/LowCodeEditor/setters/controlled-setter';
 import Logo from '@/components/LowCodeEditor/plugins/logo';
-import PageManage from '@/components/LowCodeEditor/plugins/PageManage';
-import createFormPlugin from '@/components/LowCodeEditor/plugins/createForm';
+import PageManagePlugin from '@/components/LowCodeEditor/plugins/pageManage';
+import CreateFormPlugin from '@/components/LowCodeEditor/plugins/createForm';
+import PreviewPlugin from '@/components/LowCodeEditor/plugins/preview';
 
 import {
   saveSchema,
   resetSchema,
 } from '@/services/lowcode';
-import { getSchemaByPageObj } from '@/components/LowCodeEditor/plugins/PageManage/magageFunc';
+import {
+  setPageSchemaToLocalStorage,
+  setPackgesToLocalStorage
+} from '@/services/lowcode/local';
+import { getSchemaByPageObj } from '@/components/LowCodeEditor/plugins/pageManage/magageFunc';
 import { pageMsgToMenu, findTargetInMenuData } from "@/utils";
 import { getAllCategories } from '@/services/ant-design-pro/categroy';
 
@@ -46,16 +49,16 @@ export default async function registerPlugins() {
       async init() {
         // 设置物料描述
         const { material, project } = ctx;
-        console.log(await injectAssets(assets));
         material.setAssets(await injectAssets(assets));
         // 加载 schema
-        const currentPage = localStorage.getItem("indicator")||"";
+        const currentIndictorId = localStorage.getItem("indicator") || "";
         //选择从进入的指标模型作为默认页面:
-        const defaultPage = findTargetInMenuData(pageMsgToMenu(await getAllCategories({ study_id: ~~pathname.split('/')[1] })), currentPage)
+        const defaultPage = findTargetInMenuData(pageMsgToMenu(await getAllCategories({ study_id: ~~pathname.split('/')[1] })), currentIndictorId)
         //接下来要设置获取对应Schema文件的逻辑
-        const pageSchema = await getSchemaByPageObj(defaultPage, currentPage)
+        const pageSchema = await getSchemaByPageObj(defaultPage, currentIndictorId)
         project.openDocument(pageSchema);
-        localStorage.setItem("currentSchema", JSON.stringify(pageSchema))
+        setPageSchemaToLocalStorage(pageSchema);
+        setPackgesToLocalStorage();
       },
     };
   }
@@ -105,7 +108,7 @@ export default async function registerPlugins() {
           area: 'leftArea',
           type: 'PanelDock',
           name: 'pagesPane',
-          content: PageManage,
+          content: PageManagePlugin,
           contentProps: {},
           props: {
             align: 'top',
@@ -197,52 +200,10 @@ export default async function registerPlugins() {
   await plugins.register(saveSample);
 
   // 注册预览
-  const preview = (ctx: IPublicModelPluginContext) => {
-    return {
-      name: 'preview',
-      async init() {
-        const { skeleton } = ctx;
-
-        skeleton.add({
-          name: 'preview',
-          area: 'topArea',
-          type: 'Widget',
-          props: {
-            align: 'right',
-          },
-          content: (
-            <Button onClick={() => console.log(123)}>
-              预览
-            </Button>
-          ),
-        });
-      },
-    };
-  }
-  preview.pluginName = 'preview';
-  await plugins.register(preview);
+  await plugins.register(PreviewPlugin);
 
   // 注册生成表单面板
-  const createForm = (ctx: IPublicModelPluginContext) => {
-    return {
-      name: 'createForm',
-      async init() {
-        const { skeleton } = ctx;
-        
-        skeleton.add({
-          name: 'createForm',
-          area: 'topArea',
-          type: 'Widget',
-          props: {
-            align: 'right',
-          },
-          content: createFormPlugin
-        });
-      },
-    };
-  }
-  createForm.pluginName = 'createForm';
-  await plugins.register(createForm);
+  await plugins.register(CreateFormPlugin);
 
   DataSourcePanePlugin.pluginName = 'DataSourcePane';
   await plugins.register(DataSourcePanePlugin);
@@ -264,7 +225,7 @@ export default async function registerPlugins() {
         // setters.registerSetter('BehaviorSetter', BehaviorSetter);
         // setters.registerSetter('CustomSetter', CustomSetter);
         setters.registerSetter('TestSetter', TestSetter);
-        setters.registerSetter('ControlledSetter',ControlledSetter)
+        setters.registerSetter('ControlledSetter', ControlledSetter)
       },
     };
   }

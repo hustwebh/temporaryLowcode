@@ -6,22 +6,13 @@ import {
   modifyIndicatorData,
   modifyTableData
 } from '@/services/ant-design-pro/tableData';
-import { modifyIndicator } from '@/services/ant-design-pro/categroy'
 import type { EditableFormInstance, ProColumns, ProFormInstance, ProFormText } from '@ant-design/pro-components';
 import { EditableProTable, ProForm } from '@ant-design/pro-components';
 import CopyModal from './components/copyModal';
 import { v4 as uuidv4 } from 'uuid';
-// import {
-//   delModelData,
-//   changeModelData,
-//   getModelData,
-// } from '@/services/ant-design-pro/tableData';
 import {
-  ExclamationCircleOutlined,
   PlusOutlined,
-  PlusCircleOutlined,
   EditOutlined,
-  MinusCircleOutlined,
   DeleteOutlined
 } from '@ant-design/icons';
 import {
@@ -358,10 +349,12 @@ export default function DiseaseIndexLibrary() {
     const result = await getAllCategories({ study_id: ~~pathname.split('/')[3] });
     const TreeDataWithoutKey = categoriesAndIndicatorsDataToTreeWithoutKey(result);
     const TreeData = TreeDataWithoutKeyToTreeData(TreeDataWithoutKey);
-    const { id, key } = findFirstSelectNode(TreeData)//TODO
     setCategories(TreeData);
-    setIndicator(id);
-    setDefaultKey(key)
+    if (TreeData.length) {//当获取到的Tree型数据不为空时，才能进行解构赋值
+      const { id, key } = findFirstSelectNode(TreeData)
+      setIndicator(id);
+      setDefaultKey(key);
+    }
   }
   const awaitGetIndicator = async () => {
     const result = await getIndicatorData(indicator)
@@ -464,7 +457,7 @@ export default function DiseaseIndexLibrary() {
         length: ~~item.length,
         not_null: ~~item.not_null,
         type: item.type,
-        tag:item.tag,
+        tag: item.tag,
         dict_values: item.dict_values
       }))
     })
@@ -476,11 +469,21 @@ export default function DiseaseIndexLibrary() {
   return (
     <div style={{ height: "100%" }}>
       <Row justify="space-between" style={{ height: "100%" }}>
-        <Col span={5}>
-          <Button
-            icon={<PlusOutlined style={{ color: "#1890ff" }} />}
-            onClick={addCategoryAtRoot}
-          >添加分类</Button>
+        <Col span={4}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between"
+          }}>
+            <span style={{
+              fontSize: "20px",
+              fontWeight: 700
+            }}>添加分类</span>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary" shape="circle"
+              onClick={addCategoryAtRoot}
+            ></Button>
+          </div>
           {
             categories.length
               ? (
@@ -494,7 +497,7 @@ export default function DiseaseIndexLibrary() {
               : "待添加研究项"
           }
         </Col>
-        <Col span={18}>
+        <Col span={19}>
           {indicator ? <>
             <ProForm<{
               table: DataSourceType[];
@@ -522,7 +525,7 @@ export default function DiseaseIndexLibrary() {
                 headerTitle={tableName && <TableTitle tableData={tableData} tableName={tableName} setTableName={setTableName} />}
                 value={tableData.field_list}
                 onChange={EditableTableChanged}
-                params={{ indicator }}
+                params={{ indicator, pathname }}
                 request={formRequest}
                 name="table"
                 recordCreatorProps={{
@@ -530,20 +533,7 @@ export default function DiseaseIndexLibrary() {
                   record: () => ({ id: uuidv4() }),
                 }}
                 toolBarRender={() => [
-                  // <Popconfirm
-                  //   title="确认删除该数据模型吗?"
-                  //   // onConfirm={handleConfirm}
-                  //   onConfirm={() => { }}
-                  //   onCancel={() => null}
-                  // >
-                  //   <Button key="delete" type="dashed" danger>
-                  //     删除该数据模型
-                  //   </Button>
-                  // </Popconfirm>,
-                  <Button
-                    // style={{ width: 130, height: 35 }}
-                    type='primary'
-                  >
+                  <Button type='primary'>
                     <Link to={`/${~~pathname.split('/')[1]}/Editor`} target="_blank">
                       <EditOutlined />
                       进入编辑

@@ -2,51 +2,17 @@ import { request } from '@umijs/max';
 import { material, project } from '@alilc/lowcode-engine';
 import { message } from 'antd';
 import schema from '@/assets/schema';
-import { PageSchema } from '@alilc/lowcode-types';
+import { IPublicTypePageSchema } from '@alilc/lowcode-types';
 import { v4 as uuidv4 } from 'uuid';
 import { modifyIndicatorData } from '@/services/ant-design-pro/tableData';
 
-let defaultPageSchema: PageSchema = schema
-
-const getLSName = (scenarioName: string, ns: string = 'projectSchema') => `${scenarioName}:${ns}`;
-
-export const getProjectSchemaFromLocalStorage = (scenarioName: string) => {
-  if (!scenarioName) {
-    console.error('scenarioName is required!');
-    return;
-  }
-  return JSON.parse(window.localStorage.getItem(getLSName(scenarioName)) || '{}');
-}
-
-// const setProjectSchemaToLocalStorage = (scenarioName: string) => {
-//   if (!scenarioName) {
-//     console.error('scenarioName is required!');
-//     return;
-//   }
-//   window.localStorage.setItem(
-//     getLSName(scenarioName),
-//     JSON.stringify(project.exportSchema(TransformStage.Save))
-//   );
-// }
-
-// const setPackgesToLocalStorage = async () => {
-//   const packages = await filterPackages(material.getAssets().packages);
-//   localStorage.setItem('packages', JSON.stringify(packages));
-// }
-
-export const getPackagesFromLocalStorage = (scenarioName: string) => {
-  if (!scenarioName) {
-    console.error('scenarioName is required!');
-    return;
-  }
-  return JSON.parse(window.localStorage.getItem(getLSName(scenarioName, 'packages')) || '[]');
-}
+let defaultPageSchema: IPublicTypePageSchema = schema
 
 export const saveSchema = async () => {
-  const currentSchema = project.currentDocument?.exportSchema();
-  localStorage.setItem("currentSchema", JSON.stringify(currentSchema));
+  const currentPageSchema = project.currentDocument?.exportSchema();
+  localStorage.setItem("currentPageSchema", JSON.stringify(currentPageSchema));
   const currentPage = localStorage.getItem("indicator") || "";
-  const result = await UpdateSchema(currentSchema)
+  const result = await UpdateSchema(currentPageSchema)
   await modifyIndicatorData(~~currentPage, { page_url: result[0].url })
   message.success('成功保存');
 };
@@ -68,8 +34,8 @@ export const resetSchema = async (scenarioName: string = 'antd') => {
     return
   }
 
-  window.localStorage.setItem(
-    getLSName(scenarioName),
+  localStorage.setItem(
+    scenarioName,
     JSON.stringify({
       componentsTree: [{ componentName: 'Page', fileName: 'sample' }],
       componentsMap: material.componentsMap,
@@ -92,9 +58,9 @@ export const createSchema = async (pageName: string) => {
 }
 
 export const getSchemaByUrl = async (schemaUrl: any) => {
+  console.log(schemaUrl);
   return request(`${schemaUrl}`, {
     method: "GET",
-    // responseType:'blob',
     headers: {
       'Content-Type': 'application/json; charset=UTF-8',
     },
